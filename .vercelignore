@@ -1,0 +1,6 @@
+.env*
+.next/
+.git/
+.vercel/
+node_modules/
+*.log

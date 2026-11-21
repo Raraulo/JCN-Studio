@@ -1,0 +1,480 @@
+{
+  "latino": [
+    {
+      "id": "deezer-14948516",
+      "title": "Virtual Diva",
+      "artist": "Don Omar",
+      "album": "iDon",
+      "duration": 239,
+      "art": "https://cdn-images.dzcdn.net/images/cover/fea30338d4b2916f19aab54d3caa0288/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/14948516"
+    },
+    {
+      "id": "deezer-3165861441",
+      "title": "Gasolina",
+      "artist": "Daddy Yankee",
+      "album": "Barrio Fino (Bonus Track Version)",
+      "duration": 192,
+      "art": "https://cdn-images.dzcdn.net/images/cover/d386e42d5c4dfb603e958371b79869f5/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/3165861441"
+    },
+    {
+      "id": "deezer-38776761",
+      "title": "Algo Me Gusta De Ti",
+      "artist": "Wisin & Yandel",
+      "album": "Líderes",
+      "duration": 274,
+      "art": "https://cdn-images.dzcdn.net/images/cover/df8d7784578aedef1ff654313eab1a85/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/38776761"
+    }
+  ],
+  "rnb": [
+    {
+      "id": "apple-1603171970",
+      "title": "Less Than Zero",
+      "artist": "The Weeknd",
+      "album": "Dawn FM",
+      "duration": 211.814,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/2f/22/a9/2f22a9a6-5af1-5846-a44e-ba016724ed69/21UM1IM58860.rgb.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/less-than-zero/1603171516?i=1603171970&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c0/e2/7e/c0e27e45-d9bd-0d01-e977-68726d066fa0/mzaf_1415464860944209003.plus.aac.p.m4a"
+    },
+    {
+      "id": "deezer-106506522",
+      "title": "In The Night",
+      "artist": "The Weeknd",
+      "album": "Beauty Behind The Madness",
+      "duration": 236,
+      "art": "https://cdn-images.dzcdn.net/images/cover/eea9f7fc913300e40307a0ff70dc73cf/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/106506522"
+    },
+    {
+      "id": "deezer-136336112",
+      "title": "Chunky",
+      "artist": "Bruno Mars",
+      "album": "24K Magic",
+      "duration": 186,
+      "art": "https://cdn-images.dzcdn.net/images/cover/012b27906b430a37ec1d8f793d5c4fa6/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/136336112"
+    }
+  ],
+  "indie": [
+    {
+      "id": "apple-1440812085",
+      "title": "Summertime Sadness",
+      "artist": "Lana Del Rey",
+      "album": "Born to Die",
+      "duration": 265.502,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/5f/d9/63/5fd96387-45fa-6b94-afd8-7b2c4a24a93b/11UMGIM38959.rgb.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/summertime-sadness/1440811595?i=1440812085&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d1/64/e3/d164e3bb-aeb5-effb-a09c-d3775441c5b8/mzaf_3133376794831917475.plus.aac.p.m4a"
+    },
+    {
+      "id": "apple-1806531961",
+      "title": "The Night We Met",
+      "artist": "Lord Huron",
+      "album": "Strange Trails",
+      "duration": 208.227,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/55/41/4a/55414a18-861a-79d1-e575-5bf8cf205dbe/886445056839_Cover.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/the-night-we-met/1806531135?i=1806531961&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/64/b4/f3/64b4f3e5-d4f9-ec10-e6af-b6c26bde9b47/mzaf_8621887946764980860.plus.aac.p.m4a"
+    },
+    {
+      "id": "apple-1440827112",
+      "title": "Tu Falta de Querer",
+      "artist": "Mon Laferte",
+      "album": "Mon Laferte, Vol. 1",
+      "duration": 278.205,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/6c/e6/c7/6ce6c71b-9c90-9040-622e-524f1a878135/15UMGIM37781.rgb.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/tu-falta-de-querer/1440826904?i=1440827112&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d2/a6/e3/d2a6e342-9bc1-8c9c-e02b-cf8c65801f74/mzaf_1146992294423315861.plus.aac.p.m4a"
+    }
+  ],
+  "regional": [
+    {
+      "id": "deezer-3345439241",
+      "title": "caperuza",
+      "artist": "Fuerza Regida",
+      "album": "111XPANTIA",
+      "duration": 179,
+      "art": "https://cdn-images.dzcdn.net/images/cover/f1cc610628521812b555bcfaf558505c/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/3345439241"
+    },
+    {
+      "id": "deezer-2613547272",
+      "title": "Kalashnikov",
+      "artist": "Clave Especial",
+      "album": "Kalashnikov",
+      "duration": 129,
+      "art": "https://cdn-images.dzcdn.net/images/cover/a916804d327d46af19003c8ab5644719/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/2613547272"
+    },
+    {
+      "id": "deezer-2954258511",
+      "title": "NO SON DORITOS",
+      "artist": "Clave Especial",
+      "album": "No Son Doritos",
+      "duration": 160,
+      "art": "https://cdn-images.dzcdn.net/images/cover/226a8c0f92b13cbce4ca0f1566d1cea5/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/2954258511"
+    }
+  ],
+  "rap": [
+    {
+      "id": "deezer-1693337757",
+      "title": "Bad and Boujee",
+      "artist": "Migos",
+      "album": "Culture",
+      "duration": 343,
+      "art": "https://cdn-images.dzcdn.net/images/cover/f5331113a173b70b4394381ff0c6c0f4/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/1693337757"
+    },
+    {
+      "id": "deezer-1109731",
+      "title": "Lose Yourself",
+      "artist": "Eminem",
+      "album": "Curtain Call: The Hits",
+      "duration": 326,
+      "art": "https://cdn-images.dzcdn.net/images/cover/e2b36a9fda865cb2e9ed1476b6291a7d/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/1109731"
+    },
+    {
+      "id": "deezer-122607646",
+      "title": "Es Épico",
+      "artist": "Canserbero",
+      "album": "Muerte",
+      "duration": 361,
+      "art": "https://cdn-images.dzcdn.net/images/cover/344c1074e402fd7f1f4189857e721a89/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/122607646"
+    }
+  ],
+  "rock": [
+    {
+      "id": "deezer-13791930",
+      "title": "Smells Like Teen Spirit",
+      "artist": "Nirvana",
+      "album": "Nevermind (Remastered)",
+      "duration": 301,
+      "art": "https://cdn-images.dzcdn.net/images/cover/f0282817b697279e56df13909962a54a/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/13791930"
+    },
+    {
+      "id": "deezer-92720038",
+      "title": "Shoot to Thrill",
+      "artist": "AC/DC",
+      "album": "Back In Black",
+      "duration": 314,
+      "art": "https://cdn-images.dzcdn.net/images/cover/41041b14873956eff0459c8ea2c296a8/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/92720038"
+    },
+    {
+      "id": "deezer-13247459",
+      "title": "De Música Ligera Remasterizado 2007",
+      "artist": "Soda Stereo",
+      "album": "Me Verás Volver (Hits & Más)",
+      "duration": 213,
+      "art": "https://cdn-images.dzcdn.net/images/cover/c8740ff412c45180d98441c84159f232/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/13247459"
+    }
+  ],
+  "ecuador": [
+    {
+      "id": "deezer-610300252",
+      "title": "Cuentame",
+      "artist": "Equilivre",
+      "album": "Junto a Ti",
+      "duration": 282,
+      "art": "https://cdn-images.dzcdn.net/images/cover/7fc57f61f218e5dbe8b49986a252269d/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/610300252"
+    },
+    {
+      "id": "deezer-775224552",
+      "title": "Tu recuerdo en un cigarrillo",
+      "artist": "David Chumaña",
+      "album": "Antología de tu Ausencia",
+      "duration": 188,
+      "art": "https://cdn-images.dzcdn.net/images/cover/876b6d6a7388499e70f7f532f8fdcf0e/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/775224552"
+    },
+    {
+      "id": "deezer-1484930742",
+      "title": "Chao Lola",
+      "artist": "Juan Fernando Velasco",
+      "album": "Tanto Amor",
+      "duration": 231,
+      "art": "https://cdn-images.dzcdn.net/images/cover/c4dee4ea9a69c34fc93e51e1e14855fe/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/1484930742"
+    }
+  ],
+  "trap": [
+    {
+      "id": "deezer-704054322",
+      "title": "Diles",
+      "artist": "Bad Bunny",
+      "album": "Diles",
+      "duration": 286,
+      "art": "https://cdn-images.dzcdn.net/images/cover/bbaf1244f46c20276b04a95ccb79f21b/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/704054322"
+    },
+    {
+      "id": "deezer-133459588",
+      "title": "Cuatro Babys (feat. Trap Capos, Noriel, Bryant Myers & Juhn)",
+      "artist": "Maluma",
+      "album": "Cuatro Babys (feat. Trap Capos, Noriel, Bryant Myers & Juhn)",
+      "duration": 278,
+      "art": "https://cdn-images.dzcdn.net/images/cover/f26a7c379c142a9a9c1bafb4c7a64162/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/133459588"
+    },
+    {
+      "id": "deezer-473101202",
+      "title": "La Ocasión",
+      "artist": "Dj Luian",
+      "album": "La Ocasión",
+      "duration": 336,
+      "art": "https://cdn-images.dzcdn.net/images/cover/88357d04f36ede1d6a78dc1091dca5a2/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/473101202"
+    }
+  ],
+  "baladas": [
+    {
+      "id": "deezer-114363320",
+      "title": "Dueles",
+      "artist": "Jesse & Joy",
+      "album": "Un Besito Más",
+      "duration": 247,
+      "art": "https://cdn-images.dzcdn.net/images/cover/3b31fb10483e80d89e7911ce4c94459f/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/114363320"
+    },
+    {
+      "id": "deezer-105000658",
+      "title": "Tu Falta De Querer",
+      "artist": "Mon Laferte",
+      "album": "Mon Laferte (Vol. 1)",
+      "duration": 274,
+      "art": "https://cdn-images.dzcdn.net/images/cover/bce09b41ab9f0c9c75b6015fa9e53983/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/105000658"
+    },
+    {
+      "id": "deezer-5277428",
+      "title": "Aléjate de Mí",
+      "artist": "Camila",
+      "album": "Dejarte De Amar",
+      "duration": 258,
+      "art": "https://cdn-images.dzcdn.net/images/cover/df3647b2338181294be962a3cf703cf3/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/5277428"
+    }
+  ],
+  "clasicos": [
+    {
+      "id": "deezer-4763165",
+      "title": "Beat It",
+      "artist": "Michael Jackson",
+      "album": "Michael Jackson's This Is It",
+      "duration": 258,
+      "art": "https://cdn-images.dzcdn.net/images/cover/a0ad67d1beb761f2cb9f8b60e5bcf07a/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/4763165"
+    },
+    {
+      "id": "deezer-1078779",
+      "title": "Hold the Line",
+      "artist": "Toto",
+      "album": "Toto",
+      "duration": 236,
+      "art": "https://cdn-images.dzcdn.net/images/cover/18a61113ea28b3261a97c6ca167f00ba/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/1078779"
+    },
+    {
+      "id": "deezer-4288159",
+      "title": "Self Control",
+      "artist": "Laura Branigan",
+      "album": "Self Control",
+      "duration": 246,
+      "art": "https://cdn-images.dzcdn.net/images/cover/e8d7d2bb9f156110a5be3734c246c99a/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/4288159"
+    }
+  ],
+  "vallenato": [
+    {
+      "id": "deezer-1963948",
+      "title": "Olvídala",
+      "artist": "Binomio de Oro de América",
+      "album": "30 Mejores: Binomio de Oro de América",
+      "duration": 304,
+      "art": "https://cdn-images.dzcdn.net/images/cover/7a55a6072d4d0e7dac01f82094d7945b/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/1963948"
+    },
+    {
+      "id": "apple-1711885401",
+      "title": "Si Tu Amor No Vuelve",
+      "artist": "Binomio de Oro de América",
+      "album": "30 Mejores: Binomio de Oro de América",
+      "duration": 294.638,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/43/1f/fd/431ffd34-9299-3570-23a7-d486b023c81a/829410648561.png/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/si-tu-amor-no-vuelve/1711885396?i=1711885401&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ab/7c/40/ab7c40f5-c01f-34ab-7353-e8d71aba5a1d/mzaf_5935213397155319939.plus.aac.p.m4a"
+    },
+    {
+      "id": "apple-1714010384",
+      "title": "No Voy a Llorar",
+      "artist": "Los Diablitos",
+      "album": "30 Mejores",
+      "duration": 283.423,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/27/52/91/27529196-d103-a793-5601-0e588981dd99/829410988254.png/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/no-voy-a-llorar/1714010365?i=1714010384&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fd/bd/14/fdbd14b5-636a-6749-93eb-25c48bd0922b/mzaf_16966829921371405799.plus.aac.p.m4a"
+    }
+  ],
+  "salsa": [
+    {
+      "id": "apple-722525293",
+      "title": "La Negra Tiene Tumbao",
+      "artist": "Celia Cruz",
+      "album": "La Negra Tiene Tumbao",
+      "duration": 253.347,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b1/ef/5a/b1ef5a50-4802-f989-c21a-7967fe0795a0/886444279840.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/la-negra-tiene-tumbao/722525277?i=722525293&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/72/23/64/72236471-47b1-590e-6a85-71ac7c0ff930/mzaf_5194267191250360462.plus.aac.p.m4a"
+    },
+    {
+      "id": "apple-1445571967",
+      "title": "Tú con Él",
+      "artist": "Frankie Ruiz",
+      "album": "Esta Cobardía",
+      "duration": 303.412,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/50/c8/a0/50c8a097-ce26-c936-2b7b-537d79bd087a/191018186920_cover.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/t%C3%BA-con-%C3%A9l/1445571958?i=1445571967&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/21/61/982161dd-16d5-b05a-5db2-6d0ba4358943/mzaf_5986271098454051978.plus.aac.p.m4a"
+    },
+    {
+      "id": "deezer-429988262",
+      "title": "Lloraras",
+      "artist": "Oscar D'León",
+      "album": "Traicionera (Baile Total)",
+      "duration": 221,
+      "art": "https://cdn-images.dzcdn.net/images/cover/f8c4a8f7bf7df77666d9c56ebedf2f0d/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/429988262"
+    }
+  ],
+  "merengue": [
+    {
+      "id": "deezer-1857103157",
+      "title": "La Dueña del Swing",
+      "artist": "Los Hermanos Rosario",
+      "album": "Los Dueños del Swing",
+      "duration": 260,
+      "art": "https://cdn-images.dzcdn.net/images/cover/81be62972a7d9a7c77b6420e99aaf050/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/1857103157"
+    },
+    {
+      "id": "deezer-557092",
+      "title": "Tu Sonrisa",
+      "artist": "Elvis Crespo",
+      "album": "Pintame",
+      "duration": 273,
+      "art": "https://cdn-images.dzcdn.net/images/cover/7e919b8e2e44b7fd91ab30f7ebca1b7a/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/557092"
+    },
+    {
+      "id": "deezer-11126567",
+      "title": "Tiburon",
+      "artist": "Proyecto Uno",
+      "album": "El Poder de la Música",
+      "duration": 302,
+      "art": "https://cdn-images.dzcdn.net/images/cover/caa10c9063c6040068af6c8a30b314c7/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/11126567"
+    }
+  ],
+  "cumbia": [
+    {
+      "id": "apple-1440927120",
+      "title": "Cómo Te Voy a Olvídar",
+      "artist": "Los Ángeles Azules",
+      "album": "Grandes Éxitos Remezclados y Remasterizados: los Ángeles Azules",
+      "duration": 267.613,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/39/da/be/39dabe11-1599-5e8b-0e82-103768b80580/00801472063520.rgb.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/c%C3%B3mo-te-voy-a-olv%C3%ADdar/1440927113?i=1440927120&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/25/85/b3/2585b3d8-ac5d-71bc-2cc4-942bab569138/mzaf_8161711833305640837.plus.aac.p.m4a"
+    },
+    {
+      "id": "apple-250605043",
+      "title": "Se Me Perdió la Cadenita",
+      "artist": "La Sonora Dinamita",
+      "album": "Puras Cumbias Originales - 16 Dinamitazos",
+      "duration": 157.707,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/7c/40/2f/7c402ff0-8f28-f001-bcb2-473605dc05d2/mzi.rylhpmqr.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/se-me-perdi%C3%B3-la-cadenita/250604536?i=250605043&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d9/16/83/d9168348-d77c-c299-ed2a-59961d458093/mzaf_6258592961615981615.plus.aac.p.m4a"
+    },
+    {
+      "id": "apple-1541331998",
+      "title": "El Hijo de Tuta",
+      "artist": "Lisandro Meza",
+      "album": "63 Años de Vida Artística",
+      "duration": 240.039,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/46/7a/42/467a423b-5391-278b-0b68-fafcb2bc069e/5059580776336_cover.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/el-hijo-de-tuta/1541331674?i=1541331998&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2a/aa/d9/2aaad9f7-6851-0372-4aa9-3c839c92ec41/mzaf_6839410252684259161.plus.aac.p.m4a"
+    }
+  ],
+  "electronica": [
+    {
+      "id": "deezer-65404135",
+      "title": "Play Hard (feat. Ne-Yo & Akon) (New Edit)",
+      "artist": "David Guetta",
+      "album": "Play Hard (feat. Ne-Yo & Akon) (New Edit)",
+      "duration": 208,
+      "art": "https://cdn-images.dzcdn.net/images/cover/c0a846d518823ebb05a6afc4fdd58b14/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/65404135"
+    },
+    {
+      "id": "apple-737053271",
+      "title": "Don't Stop the Party (feat. TJR)",
+      "artist": "Pitbull",
+      "album": "Global Warming: Meltdown (Deluxe Version)",
+      "duration": 206.122,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/1b/c5/af/1bc5af7d-ba57-a2a2-02ce-5a07c1a1074b/886444305686.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/dont-stop-the-party-feat-tjr/737053237?i=737053271&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/68/a9/c3/68a9c3e7-6763-bfde-e278-560869ae02b8/mzaf_18078357235331277646.plus.aac.p.m4a"
+    },
+    {
+      "id": "apple-1350850469",
+      "title": "Tremor (Sensation 2014 Anthem)",
+      "artist": "Dimitri Vegas, Martin Garrix & Like Mike",
+      "album": "Tremor (Sensation 2014 Anthem) - Single",
+      "duration": 294.375,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/ed/0b/94/ed0b9440-0cdb-0bd9-3049-6b6a75297f4e/8712944577877.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/tremor-sensation-2014-anthem/1350850464?i=1350850469&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b0/64/f0/b064f0bf-b0a1-e0fa-f0d0-71e06c17de6d/mzaf_11114413151083358575.plus.aac.p.m4a"
+    }
+  ],
+  "bachata": [
+    {
+      "id": "apple-1458398730",
+      "title": "Canalla",
+      "artist": "Romeo Santos & El Chaval de la Bachata",
+      "album": "Utopía",
+      "duration": 226.681,
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/63/62/b8/6362b891-47a6-33dd-bd80-4e6ac4772073/886447616253.jpg/600x600bb.jpg",
+      "link": "https://music.apple.com/us/album/canalla/1458398617?i=1458398730&uo=4",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/95/7b/fb/957bfb80-8118-db2b-6108-f9982a16100e/mzaf_11516720321473949469.plus.aac.p.m4a"
+    },
+    {
+      "id": "deezer-75212170",
+      "title": "Eres Mía",
+      "artist": "Romeo Santos",
+      "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+      "duration": 251,
+      "art": "https://cdn-images.dzcdn.net/images/cover/45c36a80961b4566b05a3c8b86ff6a02/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/75212170"
+    },
+    {
+      "id": "deezer-11497677",
+      "title": "Hoja En Blanco",
+      "artist": "Monchy & Alexandra",
+      "album": "Hoja en Blanco",
+      "duration": 307,
+      "art": "https://cdn-images.dzcdn.net/images/cover/ed16b9cd718a7ddd955c823dd4447a7d/500x500-000000-80-0-0.jpg",
+      "link": "https://www.deezer.com/track/11497677"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "latino",
+    "name": "Latino",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/2c/94/bc/2c94bc9f-21ac-dee6-1f81-a9b03e17cd3f/19UM1IM00208.rgb.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "rnb",
+    "name": "Hip Hop - R&B",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/40/cd/1a/40cd1a65-7948-eb96-74c6-1c4b3497456c/15UMGIM36513.rgb.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "indie",
+    "name": "Indie/Alternativo",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/7c/c4/e5/7cc4e501-6b09-b379-bb54-a40de4615aa3/22UM1IM33313.rgb.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "regional",
+    "name": "Regional",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/51/0a/a3/510aa39f-7a41-b53c-70a0-6a0df60645bb/196872995978.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "rap",
+    "name": "Rap",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f7/cb/e3/f7cbe3e6-114b-40c2-9598-c92e8a630a58/196871345408.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "rock",
+    "name": "Rock",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/e3/20/03/e32003a4-99bc-1c70-40ba-001882f35dba/00602537526840.rgb.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "ecuador",
+    "name": "Ecuador",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/cd/8c/6f/mzi.bmkznxfy.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "trap",
+    "name": "Trap",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/cf/3a/db/cf3adbe6-8ea1-f60f-60fd-713eefda3962/193483317984.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "baladas",
+    "name": "Baladas",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Features/v4/18/53/49/185349a3-0349-99f9-18ef-32bb4480acd1/dj.dzzxwxgo.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "clasicos",
+    "name": "Clásicos",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/5f/28/d55f28f4-610c-ee81-dc16-a01cda46bbc4/886443546264.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "vallenato",
+    "name": "Vallenato",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/73/af/a3/73afa343-f187-efa2-07be-12a9d53dbdc5/195497756858.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "salsa",
+    "name": "Salsa",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/f4/cc/e7/f4cce738-ff16-ac1d-7528-dce70b0357c6/21CRGIM25407.rgb.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "merengue",
+    "name": "Merengue",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c9/c7/65/c9c765b8-cd8c-cbb8-3a9e-10b36da50606/s05.sgfpgatb.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "cumbia",
+    "name": "Cumbia",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music/60/da/59/mzi.bvalzddz.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "electronica",
+    "name": "Electrónica",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/18/5b/1e/185b1ef5-5d97-19d8-aebf-8e29e41874ef/13UAAIM59255.rgb.jpg/600x600bb.jpg"
+  },
+  {
+    "id": "bachata",
+    "name": "Bachata",
+    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/7f/3c/35/7f3c3523-bf32-ae73-35e5-727a43db9bfb/886444146890.jpg/600x600bb.jpg"
+  }
+]
