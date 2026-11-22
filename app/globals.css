@@ -47,6 +47,11 @@ small { font-size: .84rem }
   to { opacity: 1; transform: translateY(0) }
 }
 .view-content > section > h1 { font-size: clamp(2.2rem,4vw,3.5rem) }
+.chart-source { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; margin-top: 12px }
+.chart-source a { display: inline-flex; align-items: center; gap: 5px; color: #ff9bac }
+.chart-source a:hover { text-decoration: underline }
+.chart-loading, .world-chart > .empty { margin-top: 24px }
+.chart-rank { width: 25px; text-align: center; color: var(--muted); font-size: .86rem }
 .genre-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: clamp(12px,2vw,24px); margin-top: 23px }
 .genre-card { position: relative; display: grid; min-width: 0; aspect-ratio: 1; overflow: hidden; isolation: isolate; border: 1px solid #ffffff20; border-radius: 15px; text-align: left; background: var(--panel); box-shadow: 0 8px 24px #0003; transition: translate .23s var(--ease-out), border-color .2s, box-shadow .23s; animation: content-in .32s var(--ease-out) var(--entrance-delay, 0ms) both }
 .genre-card:hover { translate: 0 -4px; border-color: #ff91a780; box-shadow: 0 12px 32px #0007 }
@@ -73,7 +78,17 @@ small { font-size: .84rem }
   mask-composite: intersect;
 }
 .hero:not(.genre-hero)::before { content: ''; background: url('/hero.webp') right center / cover }
-.genre-hero-cover img { width: 100%; height: 100%; object-fit: cover; object-position: center 42% }
+.hero:not(.genre-hero)::before { top: -30mm; height: calc(100% + 30mm); background-position: right top }
+.hero:not(.genre-hero)::before {
+  transform-origin: 72% 50%;
+  animation: hero-soft-zoom 16s ease-in-out infinite alternate;
+}
+@keyframes hero-soft-zoom {
+  from { transform: scale(1) }
+  to { transform: scale(1.045) }
+}
+.genre-hero-cover { top: -30mm; height: calc(100% + 30mm); }
+.genre-hero-cover img { width: 100%; height: 100%; object-fit: cover; object-position: center top }
 .genre-hero-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #101012a8, transparent 74%) }
 .hero-content { position: relative; padding: 30px 0; text-shadow: 0 2px 20px #101012 }
 .hero h1 { margin: 8px 0; font-size: clamp(2.9rem, 5.1vw, 5rem); letter-spacing: -.075em }
@@ -85,7 +100,7 @@ small { font-size: .84rem }
 .cover { position: relative; display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; overflow: hidden; border-radius: 6px; background: radial-gradient(at 25% 25%, var(--cover), #17161c); color: #ffffffaa }
 .cover svg { width: 38%; height: 38% }
 .cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover }
-.genre-cover img, .genre-hero-cover img, .artwork-large img { animation: cover-breathe 12s ease-in-out infinite alternate; animation-delay: var(--cover-delay, 0s) }
+.genre-cover img, .genre-hero-cover img, .artwork-large img, .artist-result .artist-avatar img, .album-art img { animation: cover-breathe 12s ease-in-out infinite alternate; animation-delay: var(--cover-delay, 0s) }
 @keyframes cover-breathe {
   from { transform: scale(1) }
   to { transform: scale(1.09) }
@@ -144,6 +159,24 @@ select { background: #1c1c20; border: 1px solid #36353b; padding: 8px 10px; bord
 .result-play-icon { display: grid; place-items: center; width: 28px; flex: none; color: #bdbbc4 }
 .result-play:hover .result-play-icon, .result-play.row-playing .result-play-icon { color: var(--accent) }
 .result .result-heart { width: 44px; height: 44px }
+.artist-results { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 24px; margin: 22px 0 18px }
+.artist-result { display: flex; align-items: center; gap: 12px; min-width: 0; text-align: left }
+.artist-result:hover strong, .album-card:hover strong { color: #ffb1bf }
+.artist-result .artist-avatar { width: 50px; height: 50px; flex: none }
+.discography-back { min-height: 34px; margin-bottom: 18px }
+.discography-hero { display: flex; align-items: center; gap: clamp(14px,3vw,40px); padding: 12px 0 22px; min-width: 0 }
+.discography-hero > div { min-width: 0; overflow-wrap: anywhere }
+.discography-hero h1 { font-size: clamp(1.7rem, 4vw, 4rem); margin: 4px 0 }
+.discography-hero .artist-avatar, .discography-hero .discography-cover { width: clamp(76px, 15vw, 192px); height: auto; aspect-ratio: 1; flex: none }
+.discography-hero .discography-cover { border-radius: 14px }
+.discography-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: .95rem }
+.discography-meta button:hover, .artwork-artist-link:hover { color: #ffb1bf; text-decoration: underline }
+.discography h2 { margin-bottom: 12px }
+.discography-albums { margin-top: 34px }
+.album-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(138px,100%),1fr)); gap: clamp(14px, 2vw, 24px); margin-top: 14px }
+.album-card { display: grid; align-content: start; gap: 6px; min-width: 0; text-align: left }
+.album-card .album-art { width: 100%; height: auto; aspect-ratio: 1; border-radius: 7px }
+.album-card strong { font-size: .9rem; overflow-wrap: anywhere; line-height: 1.25 }
 .lyrics, .toast { color: white; background: #18181c; border: 1px solid #34323a; border-radius: 13px; box-shadow: 0 12px 50px #0008 }
 .lyrics { position: fixed; z-index: 3; right: 16px; bottom: calc(var(--player) + 12px); width: min(385px, calc(100% - 32px)); padding: 19px; border-radius: 15px; animation: content-in .22s var(--ease-out) both }
 .lyrics-scroll { max-height: min(48vh, 380px); overflow: auto; margin-top: 15px; padding-right: 6px; overscroll-behavior: contain }
@@ -170,15 +203,19 @@ body:has(.artwork-stage) { overflow: hidden }
 }
 .artwork-close { position: fixed; z-index: 1; top: max(16px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); width: 44px; height: 44px; border-radius: 50%; background: #1512189c; color: white }
 .artwork-close:hover { background: #151218e8 }
-.artwork-content { width: min(100%, 600px); padding: 66px clamp(20px, 4vw, 56px) 28px; display: grid; align-items: center; gap: clamp(20px, 4vw, 46px) }
+.artwork-content { --artwork-cover-size: min(480px, max(140px, calc(100dvh - 285px))); width: min(100%, 600px); padding: 66px clamp(20px, 4vw, 56px) 28px; display: grid; align-items: center; gap: clamp(20px, 4vw, 46px) }
 .artwork-content.with-lyrics { width: min(100%, 1340px); grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(24px, 7vw, 100px) }
 .artwork-record { min-width: 0; display: grid; justify-items: center; gap: clamp(10px, 2dvh, 19px); text-align: center }
 .artwork-record .progress { width: min(100%, 420px); color: #fff; font-size: .8rem }
-.artwork-cover-area { position: relative; width: min(100%, 480px, max(140px, calc(100dvh - 285px))) }
+.artwork-cover-area { position: relative; width: min(100%, var(--artwork-cover-size)) }
 .artwork-content .artwork-large { display: grid; width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; box-shadow: 0 18px 75px #08050eb0 }
 .artwork-tools { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 7px }
 .artwork-tool { width: 42px; height: 42px; border-radius: 50%; color: white; background: #141018bf; backdrop-filter: blur(8px) }
 .artwork-tool:hover, .artwork-tool[aria-pressed="true"] { color: white; background: #bf2844 }
+@media (max-width: 425px), (max-height: 500px) {
+  .artwork-tools { right: 8px; bottom: 8px; gap: 5px }
+  .artwork-tool { width: 36px; height: 36px }
+}
 .analysis-panel, .artwork-analysis { font-family: "DM Sans Variable", "Segoe UI", sans-serif }
 .analysis-panel { width: min(470px, calc(100% - 32px)); padding: 20px }
 .artwork-analysis { min-width: 0; width: 100%; max-width: 600px; text-shadow: 0 1px 12px #0009 }
@@ -205,11 +242,38 @@ body:has(.artwork-stage) { overflow: hidden }
 .artwork-transport .main-play { width: 44px; height: 44px }
 .artwork-transport .icon { color: white }
 .artwork-status { padding: 7px 12px; border-radius: 8px; background: #171319b0; font-size: .86rem }
+.artwork-credits { align-self: start; min-width: 0; max-height: calc(100dvh - 130px); overflow-y: auto; scrollbar-width: none }
+.artwork-credits::-webkit-scrollbar { display: none }
+.artwork-credits h3 { margin: 0 0 12px; color: #ffffffcc; font-size: .78rem; text-transform: uppercase; letter-spacing: .12em }
+.artist-list { display: grid; gap: 16px }
+.artist-item { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 3mm; min-width: 0 }
+.artist-item { text-align: left }
+.artist-item:hover .artist-name { text-decoration: underline }
+.artist-item:focus-visible { outline-offset: -2px }
+.artist-avatar { width: 112px; height: 112px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: linear-gradient(145deg,#6f3b48,#29252f); box-shadow: none }
+.artist-avatar > * { grid-area: 1 / 1 }
+.artist-avatar img { width: 100%; height: 100%; object-fit: cover }
+.artist-avatar > span { color: #fff; font-size: .86rem; font-weight: 760 }
+.artist-name { color: #fff; font-size: .82rem; line-height: 1.2; text-shadow: 0 2px 8px #000 }
+.artist-credits-nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px }
+.artist-credits-nav button { width: 32px; height: 32px; border: 1px solid #ffffff26; border-radius: 50%; color: white; background: #171319a8 }
+.artist-credits-nav button:disabled { opacity: .28 }
+.artist-credits-nav span { color: #ffffffb0; font-size: .75rem }
+@media (min-width: 901px) {
+  .artwork-content:has(> .artwork-credits) {
+    width: min(100%, 850px);
+    grid-template-columns: minmax(0, var(--artwork-cover-size)) 200px;
+    justify-content: center;
+    column-gap: clamp(20px, 2.5vw, 34px);
+  }
+  .artwork-credits .artist-list { gap: 10px }
+}
 @media (prefers-reduced-motion: reduce) {
   .artwork-backdrop .cover, .artwork-backdrop .cover:nth-child(2) { animation: none }
+  .hero:not(.genre-hero)::before { animation: none }
   .artwork-backdrop .cover:nth-child(2) { opacity: .3 }
   .cover-expand { transition: none }
-  .genre-cover img, .genre-hero-cover img, .artwork-large img { animation: none }
+  .genre-cover img, .genre-hero-cover img, .artwork-large img, .artist-result .artist-avatar img, .album-art img { animation: none }
   .genre-card, .view-content, .lyrics { animation: none }
   .genre-card, .brand-icon, .icon, .primary, .secondary, .main-play { transition: none }
   .genre-card:hover, .genre-card:active { translate: none }
@@ -218,6 +282,10 @@ body:has(.artwork-stage) { overflow: hidden }
   .artwork-content.with-lyrics { grid-template-columns: 1fr; gap: 20px }
   .artwork-cover-area { width: min(100%, 290px, 42dvh) }
   .artwork-lyrics .lyrics-scroll { height: clamp(120px, 33dvh, 320px) }
+}
+
+@media (max-width: 900px) {
+  .artwork-credits { display: none }
 }
 
 @media (max-width: 1000px) {
@@ -248,6 +316,7 @@ body:has(.artwork-stage) { overflow: hidden }
   .main-play { width: 32px; height: 32px }
 }
 @media (max-width: 425px) {
+  .artist-results { grid-template-columns: 1fr }
   .genre-card { border-radius: 10px }
   .genre-name small { font-size: .7rem }
   .hero p { font-size: .9rem }

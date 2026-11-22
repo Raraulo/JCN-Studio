@@ -2,21 +2,32 @@
 
 import '@fontsource-variable/dm-sans';
 import { useEffect, useRef, useState } from 'react';
-import { AudioLines, Clock3, Heart, House, ListMusic, Maximize2, Mic2, Music2, Pause, Play, Plus, Repeat, Search, Shuffle, SkipBack, SkipForward, Sparkles, Volume2, VolumeX, X, ExternalLink } from 'lucide-react';
+import { AudioLines, Clock3, Compass, Heart, House, ListMusic, Maximize2, Mic2, Music2, Pause, Play, Plus, Repeat, Search, Shuffle, SkipBack, SkipForward, Sparkles, Volume2, VolumeX, X, ExternalLink } from 'lucide-react';
 import { Howl } from 'howler';
 import { localFiles } from './storage';
 import fixedTracks from './mis-fijas.json';
 import genres from './genres.json';
 import genreDefaults from './canciones-por-genero.json';
+import { chartSource } from './chart-source';
+import { catalogTrackId, shareableTrackId, songParam } from './track-link';
 
-const nav = [[House, 'Inicio'], [Heart, 'Favoritos'], [ListMusic, 'Mis fijas']];
+const genresView = 'Explorar géneros';
+const nav = [[House, 'Inicio'], [Compass, genresView], [Heart, 'Favoritos'], [ListMusic, 'Mis fijas']];
 const colors = ['#613339','#384a45','#49405e','#74494f','#665466','#39485e'];
 const formatTime = seconds => seconds > 0 ? Math.floor(seconds / 60) + ':' + String(Math.floor(seconds % 60)).padStart(2, '0') : '0:00';
 const sameTrack = (left, right) => left && right &&
   (left.id === right.id || [left.title, left.artist].join('|').toLowerCase() === [right.title, right.artist].join('|').toLowerCase());
 const fromRemovedCatalog = track => track?.id?.startsWith('jamendo-');
 const isDeezerTrack = track => track?.id?.startsWith('deezer-');
-const isPreviewTrack = track => !track?.local && Boolean(track?.preview || isDeezerTrack(track));
+const isPreviewTrack = track => !track?.local && Boolean(track?.preview || (track?.preview !== null && isDeezerTrack(track)));
+
+function replaceSongInAddress(id) {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get(songParam) === id) return;
+  if (id) url.searchParams.set(songParam, id);
+  else url.searchParams.delete(songParam);
+  window.history.replaceState(window.history.state, '', url);
+}
 
 function Cover({ track, index = 0, className = '' }) {
   const [localArt, setLocalArt] = useState('');
@@ -38,10 +49,21 @@ function Cover({ track, index = 0, className = '' }) {
   </span>;
 }
 
-function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose }) {
-  const [query, setQuery] = useState('');
-  const [source, setSource] = useState('deezer');
-  const [results, setResults] = useState([]);
+function ArtistAvatar({ artist }) {
+  const initials = artist.name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
+  return <span className="artist-avatar" aria-hidden="true">
+    <span>{initials || '♪'}</span>
+    {artist.picture && <img src={artist.picture} alt="" onError={event => { event.currentTarget.hidden = true; }} />}
+  </span>;
+}
+
+function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose, onArtist, searchMemory }) {
+  const scope = genre || '';
+  const previous = searchMemory.get(scope);
+  const [query, setQuery] = useState(previous?.query || '');
+  const [source, setSource] = useState(previous?.source || 'deezer');
+  const [results, setResults] = useState(previous?.results || []);
+  const [artists, setArtists] = useState(previous?.artists || []);
   const [status, setStatus] = useState('');
   const searchRequest = useRef(null);
 
@@ -53,19 +75,26 @@ function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose }) {
     searchRequest.current?.abort();
     const controller = new AbortController();
     searchRequest.current = controller;
-    setStatus('Buscando canciones…');
-    try {
-      const response = await fetch('/api/catalog?' + new URLSearchParams({ q: query, source }), { signal: controller.signal });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
-      const matches = data.filter(track => track.preview);
-      setResults(matches);
-      setStatus(matches.length ? '' : 'No encontré canciones con fragmentos disponibles.');
-    } catch (error) {
-      if (controller.signal.aborted) return;
-      setResults([]);
-      setStatus(error.message || 'La búsqueda falló.');
+    setStatus('Buscando música…');
+    setResults([]);
+    setArtists([]);
+    async function find(path, params) {
+      const response = await fetch(path + '?' + new URLSearchParams(params), { signal: controller.signal });
+      if (!response.ok) throw new Error('Search unavailable');
+      return response.json();
     }
+    const [songs, profiles] = await Promise.allSettled([
+      find('/api/catalog', { q: query, source }),
+      find('/api/discografia', { q: query }),
+    ]);
+    if (controller.signal.aborted) return;
+    const matches = songs.status === 'fulfilled' ? songs.value.filter(track => track.preview) : [];
+    const people = profiles.status === 'fulfilled' ? profiles.value : [];
+    setResults(matches);
+    setArtists(people);
+    searchMemory.set(scope, { query, source, results: matches, artists: people });
+    setStatus(matches.length || people.length ? '' : songs.status === 'rejected'
+      ? 'La búsqueda falló. Intenta de nuevo.' : 'No encontré resultados para esa búsqueda.');
   }
 
   return <>
@@ -73,12 +102,18 @@ function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose }) {
       <div className="input-shell">
         <Search size={17} aria-hidden="true" />
         <input aria-label="Canción o artista" placeholder={genre ? 'Buscar para ' + genre : 'Canción o artista'} value={query} onChange={event => setQuery(event.target.value)} required autoFocus />
-        <button type="button" className="icon search-close" aria-label="Cerrar buscador" title="Cerrar buscador" onClick={onClose}><X size={18} aria-hidden="true" /></button>
+        <button type="button" className="icon search-close" aria-label="Cerrar buscador" title="Cerrar buscador" onClick={() => { searchMemory.delete(scope); onClose(); }}><X size={18} aria-hidden="true" /></button>
       </div>
-      <select aria-label="Catálogo" value={source} onChange={event => { searchRequest.current?.abort(); setSource(event.target.value); setResults([]); setStatus(''); }}><option value="deezer">Deezer</option><option value="apple">iTunes</option></select>
+      <select aria-label="Catálogo" value={source} onChange={event => { searchRequest.current?.abort(); searchMemory.delete(scope); setSource(event.target.value); setResults([]); setArtists([]); setStatus(''); }}><option value="deezer">Deezer</option><option value="apple">iTunes</option></select>
       <button className="primary">Buscar</button>
     </form>
     {status && <p className="subtle" role="status">{status}</p>}
+    {artists.length > 0 && <section className="artist-results" aria-label="Artistas">
+      {artists.map(artist => <button key={artist.id} className="artist-result" onClick={() => onArtist(artist)}>
+        <ArtistAvatar artist={artist} />
+        <span className="track-copy"><strong>{artist.name}</strong><small>Artista</small></span>
+      </button>)}
+    </section>}
     {results.map((track, index) => {
       const saved = favorite(track);
       const isPlaying = playingId === track.id;
@@ -207,6 +242,170 @@ function PlaybackProgress({ time, duration, onSeek }) {
   </div>;
 }
 
+function ArtistCredits({ track, onArtist }) {
+  const [resolved, setResolved] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const baseNames = track?.artists?.length
+    ? track.artists
+    : String(track?.artist || '')
+      .split(/\s*(?:,|&|\bfeat\.?|\bx\b|\by\b)\s*/i)
+      .map(name => name.trim())
+      .filter(Boolean)
+      .map(name => ({ name }));
+
+  useEffect(() => {
+    setOffset(0);
+    let active = true;
+    const controller = new AbortController();
+    Promise.all(baseNames.map(async artist => {
+      if (artist.id && artist.picture) return artist;
+      try {
+        const response = await fetch('/api/catalog?' + new URLSearchParams({ artist: artist.name }), { signal: controller.signal });
+        if (!response.ok) return artist;
+        const [match] = await response.json();
+        return match ? { ...artist, id: match.id, picture: match.picture || artist.picture } : artist;
+      } catch {
+        return artist;
+      }
+    })).then(names => { if (active) setResolved(names); });
+    return () => { active = false; controller.abort(); };
+  }, [track?.id, track?.artist]);
+
+  const names = resolved.length === baseNames.length ? resolved : baseNames;
+  if (!names.length) return null;
+  const visibleNames = names.slice(offset, offset + 3);
+  const hasPrevious = offset > 0;
+  const hasNext = offset + 3 < names.length;
+  return <aside className="artwork-credits" aria-label="Intérpretes">
+    <h3>Intérpretes</h3>
+    <div className="artist-list">
+      {visibleNames.map((artist, index) =>
+        <button type="button" className="artist-item" key={artist.name + index} title={'Ver artista: ' + artist.name} onClick={() => onArtist(artist)}>
+          <ArtistAvatar artist={artist} />
+          <span className="artist-name">{artist.name}</span>
+        </button>)}
+    </div>
+    {names.length > 3 && <div className="artist-credits-nav" aria-label="Cambiar intérpretes">
+      <button type="button" aria-label="Intérpretes anteriores" disabled={!hasPrevious} onClick={() => setOffset(offset - 3)}>&lt;</button>
+      <span>{Math.floor(offset / 3) + 1}/{Math.ceil(names.length / 3)}</span>
+      <button type="button" aria-label="Más intérpretes" disabled={!hasNext} onClick={() => setOffset(offset + 3)}>&gt;</button>
+    </div>}
+  </aside>;
+}
+
+function TrackTable({ tracks, playingId, onPlay, isSaved, onSave, collection = 'Favoritos' }) {
+  const playable = tracks.filter(track => track.local || isPreviewTrack(track));
+  return <div className="track-table">
+    <div className="track-row track-header"><span>#</span><span>CANCIÓN</span><span>ÁLBUM</span><span><Clock3 size={15} aria-label="Duración" /></span><span /></div>
+    {tracks.map((track, index) => {
+      const isPlaying = playingId === track.id;
+      const playbackLabel = (isPlaying ? 'Pausar ' : 'Reproducir ') + track.title;
+      const available = track.local || isPreviewTrack(track);
+      const saved = isSaved(track);
+      const details = <><Cover track={track} index={index} /><span className="track-copy"><strong>{track.title}</strong><small>{track.artist || 'Apple Music'}</small></span></>;
+      return <div className={'track-row' + (isPlaying ? ' row-playing' : '')} key={track.id}>
+        {available ? <button className="row-number" onClick={() => onPlay(track, playable)} aria-label={playbackLabel}><span>{index + 1}</span>{isPlaying ? <Pause size={14} /> : <Play size={14} />}</button>
+          : <span className="chart-rank">{index + 1}</span>}
+        {available ? <button className="row-title" onClick={() => onPlay(track, playable)}>{details}</button>
+          : <a className="row-title" href={track.link} target="_blank" rel="noreferrer" title={isDeezerTrack(track) ? 'Abrir en Deezer' : 'Abrir en Apple Music'}>{details}<ExternalLink size={14} /></a>}
+        <span className="album">{track.album || '—'}</span><span className="time">{track.duration > 0 ? formatTime(track.duration) : '—'}</span>
+        <div className="row-actions"><button className={'icon' + (saved ? ' accent' : '')} title={(saved ? 'Quitar de ' : 'Guardar en ') + collection} aria-label={collection + ': ' + track.title} aria-pressed={saved} onClick={() => onSave(track)}><Heart size={17} fill={saved ? 'currentColor' : 'none'} /></button></div>
+      </div>;
+    })}
+  </div>;
+}
+
+function Discography({ kind, id, onBack, onAlbum, onArtist, onPlay, playingId, favorite, onSave }) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/discografia?' + new URLSearchParams({ [kind]: id }), { signal: controller.signal })
+      .then(async response => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error);
+        if (!controller.signal.aborted) setData(payload);
+      })
+      .catch(reason => { if (!controller.signal.aborted) setError(reason.message || 'No se pudo cargar esta página.'); });
+    return () => controller.abort();
+  }, [kind, id, retry]);
+
+  const album = data?.album;
+  const artist = data?.artist;
+  const title = album?.title || artist?.name;
+  return <section className="discography" aria-label={title || 'Discografía'}>
+    <button className="secondary discography-back" onClick={onBack}>Volver</button>
+    {!data ? error ? <div className="empty">
+      <p role="status">{error}</p>
+      <button className="secondary" onClick={() => { setError(''); setRetry(retry + 1); }}>Reintentar</button>
+    </div> : <p className="subtle chart-loading" role="status">Cargando {kind === 'artist' ? 'el artista' : 'el álbum'}…</p> : <>
+      <header className="discography-hero">
+        {album ? <Cover track={album} className="discography-cover" /> : <ArtistAvatar artist={artist} />}
+        <div>
+          <p className="subtle">{album ? 'Álbum' : 'Artista'}</p>
+          <h1>{title}</h1>
+          {album && <div className="discography-meta">
+            <button onClick={() => onArtist(artist)}>{artist.name}</button>
+            {/^[1-9]\d{3}/.test(album.released) && <span>{album.released.slice(0, 4)}</span>}
+          </div>}
+        </div>
+      </header>
+      <section className="playlist">
+        <h2>{album ? 'Canciones' : 'Canciones destacadas'}</h2>
+        {data.tracks.length > 0 ? <TrackTable tracks={data.tracks} playingId={playingId} onPlay={onPlay} isSaved={favorite} onSave={onSave} />
+          : <p className="subtle">No hay canciones disponibles en este catálogo.</p>}
+      </section>
+      {!album && <section className="discography-albums">
+        <h2>Álbumes</h2>
+        {data.albums.length > 0 ? <div className="album-grid">{data.albums.map((record, index) => <button className="album-card" key={record.id} onClick={() => onAlbum(record.id)}>
+          <Cover track={record} index={index} className="album-art" />
+          <strong>{record.title}</strong>
+          {/^[1-9]\d{3}/.test(record.released) && <small>{record.released.slice(0, 4)}</small>}
+        </button>)}</div> : <p className="subtle">No hay álbumes disponibles en este catálogo.</p>}
+      </section>}
+    </>}
+  </section>;
+}
+
+function WorldChart({ onPlay, playingId, favorite, onSave }) {
+  const [chart, setChart] = useState(null);
+  const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadChart() {
+      try {
+        const response = await fetch('/api/top-mundial', { signal: controller.signal });
+        if (!response.ok) throw new Error('Chart unavailable');
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        setChart(data);
+        setError(false);
+      } catch {
+        if (!controller.signal.aborted) setError(true);
+      }
+    }
+    loadChart();
+    const timer = setInterval(loadChart, 30 * 60 * 1000);
+    return () => { clearInterval(timer); controller.abort(); };
+  }, [retry]);
+
+  const published = chart?.publishedAt && new Date(chart.publishedAt);
+  return <section className="world-chart" aria-labelledby="world-chart-title">
+    <h1 id="world-chart-title">Top 20 Mundial</h1>
+    <p className="subtle chart-source">
+      <a href={chartSource} target="_blank" rel="noreferrer">Apple Music <ExternalLink size={13} aria-hidden="true" /></a>
+      {published && !Number.isNaN(published.getTime()) && <time dateTime={chart.publishedAt}>
+        {new Intl.DateTimeFormat('es-EC', { dateStyle: 'long', timeZone: 'America/Guayaquil' }).format(published)}
+      </time>}
+    </p>
+    {chart ? <div className="playlist"><TrackTable tracks={chart.tracks} playingId={playingId} onPlay={onPlay} isSaved={favorite} onSave={onSave} /></div>
+      : error ? <div className="empty"><p role="status">El Top Mundial no está disponible en este momento.</p><button className="secondary" onClick={() => { setError(false); setRetry(retry + 1); }}>Reintentar</button></div>
+      : <p className="subtle chart-loading" role="status">Cargando el Top Mundial…</p>}
+  </section>;
+}
+
 export default function Home() {
   const [favorites, setFavorites] = useState([]);
   const [genreOverrides, setGenreOverrides] = useState({});
@@ -227,6 +426,7 @@ export default function Home() {
   const player = useRef(null);
   const audioUrl = useRef(null);
   const sequence = useRef(0);
+  const songInAddress = useRef(null);
   const autoNext = useRef(null);
   const repeatRef = useRef(false);
   const volumeRef = useRef(volume);
@@ -234,6 +434,7 @@ export default function Home() {
   const artworkClose = useRef(null);
   const coverButton = useRef(null);
   const analysisCache = useRef(new Map());
+  const catalogSearches = useRef(new Map());
   const genreTracks = { ...genreDefaults, ...genreOverrides };
   const searchOrigin = useRef({ view: 'Inicio', genreSearch: false });
   const searchButton = useRef(null);
@@ -256,6 +457,18 @@ export default function Home() {
   }
 
   useEffect(() => {
+    songInAddress.current = new URL(window.location.href).searchParams.get(songParam);
+    if (!window.history.state?.jcnGuard) {
+      window.history.replaceState({ jcnGuard: true, jcnView: 'Inicio' }, '', window.location.href);
+      window.history.pushState({ jcnGuard: true, jcnView: 'Inicio' }, '', window.location.href);
+    }
+    function handlePopState(event) {
+      replaceSongInAddress(songInAddress.current);
+      setView(event.state?.jcnView || 'Inicio');
+      setGenreSearch(Boolean(event.state?.jcnGenreSearch));
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    window.addEventListener('popstate', handlePopState);
     try {
       const saved = JSON.parse(localStorage.getItem('jcn-library-v1'));
       const savedFavorites = Array.isArray(saved?.favorites) ? saved.favorites.filter(track => !fromRemovedCatalog(track)) : [];
@@ -275,6 +488,7 @@ export default function Home() {
       if (player.current?.playing()) setTime(Number(player.current.seek()) || 0);
     }, 100);
     return () => {
+      window.removeEventListener('popstate', handlePopState);
       clearInterval(interval);
       sequence.current++;
       player.current?.unload();
@@ -282,10 +496,51 @@ export default function Home() {
     };
   }, []);
 
-  function navigate(nextView) {
+  useEffect(() => {
+    const requested = songInAddress.current;
+    if (!requested) return;
+    const details = catalogTrackId(requested);
+    if (!details) {
+      setMessage('El enlace de la canción no es válido.');
+      return;
+    }
+    const controller = new AbortController();
+    const playbackVersion = sequence.current;
+    fetch('/api/catalog?' + new URLSearchParams(details), { signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) throw new Error('Track unavailable');
+        const [track] = await response.json();
+        if (!track?.preview) throw new Error('Preview unavailable');
+        if (controller.signal.aborted || sequence.current !== playbackVersion) return;
+        setActive(track);
+        setArtworkOpen(true);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted && sequence.current === playbackVersion) {
+          setMessage('Este fragmento compartido no está disponible por ahora.');
+        }
+      });
+    return () => controller.abort();
+  }, []);
+
+  function navigate(nextView, replace = false) {
+    if (!replace && view !== nextView) {
+      window.history.pushState({ jcnView: nextView }, '', window.location.href);
+    } else if (replace) {
+      window.history.replaceState({ jcnView: nextView }, '', window.location.href);
+    }
     setView(nextView);
     setGenreSearch(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function openArtist(artist) {
+    if (!artist?.name) return;
+    if (artworkOpen) setArtworkOpen(false);
+    if (genreSearch) {
+      window.history.replaceState({ ...window.history.state, jcnGenreSearch: true }, '', window.location.href);
+    }
+    navigate('artist:' + encodeURIComponent(artist.id || artist.name));
   }
 
   function openSearch() {
@@ -296,7 +551,7 @@ export default function Home() {
 
   function closeSearch() {
     const origin = searchOrigin.current;
-    navigate(origin.view);
+    navigate(origin.view, true);
     setGenreSearch(origin.genreSearch);
     requestAnimationFrame(() => {
       if (!origin.genreSearch) searchButton.current?.focus();
@@ -305,10 +560,14 @@ export default function Home() {
 
   function closeGenreSearch() {
     setGenreSearch(false);
+    if (window.history.state?.jcnGenreSearch) {
+      window.history.replaceState({ ...window.history.state, jcnGenreSearch: false }, '', window.location.href);
+    }
     genreSearchButton.current?.focus();
   }
 
   const isFavorite = track => favorites.some(item => sameTrack(item, track));
+  const activeIsFavorite = isFavorite(active);
   function toggleSaved(track, genreId) {
     const list = genreId ? genreTracks[genreId] || [] : favorites;
     const next = list.some(item => sameTrack(item, track))
@@ -352,7 +611,10 @@ export default function Home() {
         const response = await fetch('/api/catalog?' + new URLSearchParams({ source: 'deezer', id: track.id.slice(7) }), { cache: 'no-store' });
         if (response.ok) {
           const [fresh] = await response.json();
-          if (fresh?.preview) source = fresh.preview;
+          if (fresh?.preview && version === sequence.current) {
+            source = fresh.preview;
+            setActive(current => current?.id === track.id ? { ...current, ...fresh } : current);
+          }
         }
       } catch {}
       if (version !== sequence.current) return;
@@ -375,7 +637,12 @@ export default function Home() {
     const sound = new Howl({
       src: [source], format: [format], html5: true, volume: volumeRef.current,
       onload: () => { if (version === sequence.current) setDuration(sound.duration()); },
-      onplay: () => { if (version === sequence.current) setPlaying(true); },
+      onplay: () => {
+        if (version !== sequence.current) return;
+        songInAddress.current = shareableTrackId(track);
+        replaceSongInAddress(songInAddress.current);
+        setPlaying(true);
+      },
       onpause: () => { if (version === sequence.current) setPlaying(false); },
       onloaderror: () => { if (version === sequence.current) reportError(); },
       onplayerror: () => { if (version === sequence.current) reportError(); },
@@ -384,7 +651,7 @@ export default function Home() {
         setPlaying(false);
         setTime(0);
         if (repeatRef.current) sound.play();
-        else if (!isPreviewTrack(track) && queue.current.length > 1) autoNext.current?.();
+        else if (queue.current.length > 1) autoNext.current?.();
       },
     });
     player.current = sound;
@@ -410,6 +677,7 @@ export default function Home() {
   const promo = isPreviewTrack(active);
   const isFixed = view === 'Mis fijas';
   const genre = genres.find(item => item.id === view);
+  const discography = /^(artist|album):(.+)$/.exec(view);
   const tracks = genre ? genreTracks[genre.id] || [] : isFixed ? fixedTracks : favorites;
   const viewTitle = genre?.name || view;
   const isSavedHere = genre ? track => tracks.some(item => sameTrack(item, track)) : isFavorite;
@@ -437,7 +705,7 @@ export default function Home() {
       <button className="brand" onClick={() => navigate('Inicio')} aria-label="JCN Studio, inicio"><span className="brand-icon"><AudioLines size={23} /></span><span>JCN<strong> Studio</strong></span></button>
       <nav aria-label="Navegación principal">
         {nav.map(([Icon, name]) => {
-          const selected = view === name || (name === 'Inicio' && Boolean(genre));
+          const selected = view === name || (name === genresView && Boolean(genre));
           return <button key={name} className={selected ? 'selected' : ''} aria-label={name} aria-current={selected ? 'page' : undefined} onClick={() => navigate(name)}><Icon size={19} /> <span>{name}</span></button>;
         })}
       </nav>
@@ -446,8 +714,10 @@ export default function Home() {
     <main className="main">
       <header className="library-top"><button ref={searchButton} className="icon library-search" aria-label="Buscar música" title="Buscar música" aria-current={view === 'Buscar' ? 'page' : undefined} onClick={openSearch}><Search size={21} aria-hidden="true" /></button></header>
       <div className="view-content" key={view}>
-      {view === 'Inicio' ? <section aria-labelledby="genres-title">
-        <h1 id="genres-title">Mis géneros</h1>
+      {discography ? <Discography kind={discography[1]} id={decodeURIComponent(discography[2])} onBack={() => window.history.back()} onAlbum={id => navigate('album:' + id)} onArtist={openArtist} onPlay={playTrack} playingId={playing ? active?.id : undefined} favorite={isFavorite} onSave={toggleSaved} />
+        : view === 'Inicio' ? <WorldChart onPlay={playTrack} playingId={playing ? active?.id : undefined} favorite={isFavorite} onSave={toggleSaved} />
+        : view === genresView ? <section aria-labelledby="genres-title">
+        <h1 id="genres-title">{genresView}</h1>
         <div className="genre-grid">{genres.map((item, index) => <button className="genre-card" key={item.id} onClick={() => navigate(item.id)} style={{ '--cover-delay': -(index % 5) * 1.9 + 's', '--entrance-delay': Math.min(index, 8) * 24 + 'ms' }}>
           <Cover track={item} index={index} className="genre-cover" />
           <span className="genre-name">{item.name}{genreTracks[item.id]?.length > 0 && <small>{genreTracks[item.id].length} guardadas</small>}</span>
@@ -455,7 +725,7 @@ export default function Home() {
       </section> : view === 'Buscar' ? <section className="content-section">
         <h1>Buscar música</h1>
         <p className="subtle catalog-scope">Los corazones de estos resultados guardan en Favoritos.</p>
-        <Catalog onChoose={toggleSaved} favorite={isFavorite} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeSearch} />
+        <Catalog onChoose={toggleSaved} favorite={isFavorite} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeSearch} onArtist={openArtist} searchMemory={catalogSearches.current} />
       </section> : <>
         <section className={'hero' + (genre ? ' genre-hero' : '')}>
           {genre && <div className="genre-hero-cover" aria-hidden="true"><img key={genre.id} src={genre.art} alt="" /></div>}
@@ -464,31 +734,18 @@ export default function Home() {
             <p>{tracks.length} {tracks.length === 1 ? 'canción' : 'canciones'}</p>
             <div className="hero-actions">
               {firstTrack && <button className="primary" onClick={() => playTrack(firstTrack, tracks)}>{firstIsPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />} {firstIsPlaying ? 'Pausar' : 'Reproducir'}</button>}
-              {genre ? <button ref={genreSearchButton} className={firstTrack ? 'secondary' : 'primary'} aria-expanded={genreSearch} aria-controls="genre-search" onClick={() => setGenreSearch(!genreSearch)}><Plus size={18} /> Buscar canciones</button>
+              {genre ? <button ref={genreSearchButton} className={firstTrack ? 'secondary' : 'primary'} aria-expanded={genreSearch} aria-controls="genre-search" onClick={() => genreSearch ? closeGenreSearch() : setGenreSearch(true)}><Plus size={18} /> Buscar canciones</button>
                 : <button className={firstTrack ? 'secondary' : 'primary'} onClick={openSearch}><Search size={17} /> Buscar música</button>}
             </div>
           </div>
         </section>
         {genre && genreSearch && <section className="content-section" id="genre-search" aria-label={'Buscar canciones para ' + genre.name}>
           <p className="subtle catalog-scope">Guarda con el corazón las canciones que quieras en {genre.name}.</p>
-          <Catalog key={genre.id} genre={genre.name} onChoose={track => toggleSaved(track, genre.id)} favorite={isSavedHere} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeGenreSearch} />
+          <Catalog key={genre.id} genre={genre.name} onChoose={track => toggleSaved(track, genre.id)} favorite={isSavedHere} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeGenreSearch} onArtist={openArtist} searchMemory={catalogSearches.current} />
         </section>}
         <section className="playlist" aria-label={viewTitle}>
-          {tracks.length ? <div className="track-table">
-            <div className="track-row track-header"><span>#</span><span>CANCIÓN</span><span>ÁLBUM</span><span><Clock3 size={15} aria-label="Duración" /></span><span /></div>
-            {tracks.map((track, index) => {
-              const isPlaying = active?.id === track.id && playing;
-              const playbackLabel = (isPlaying ? 'Pausar ' : 'Reproducir ') + track.title;
-              const saved = isSavedHere(track);
-              const collection = genre?.name || 'Favoritos';
-              return <div className={'track-row' + (isPlaying ? ' row-playing' : '')} key={track.id}>
-                <button className="row-number" onClick={() => playTrack(track, tracks)} aria-label={playbackLabel}><span>{index + 1}</span>{isPlaying ? <Pause size={14} /> : <Play size={14} />}</button>
-                <button className="row-title" onClick={() => playTrack(track, tracks)}><Cover track={track} index={index} /><span className="track-copy"><strong>{track.title}</strong><small>{track.artist}</small></span></button>
-                <span className="album">{track.album || '—'}</span><span className="time">{track.duration > 0 ? formatTime(track.duration) : '—'}</span>
-                <div className="row-actions"><button className={'icon' + (saved ? ' accent' : '')} title={(saved ? 'Quitar de ' : 'Guardar en ') + collection} aria-label={collection + ': ' + track.title} aria-pressed={saved} onClick={() => toggleSaved(track, genre?.id)}><Heart size={17} fill={saved ? 'currentColor' : 'none'} /></button></div>
-              </div>;
-            })}
-          </div> : isFixed ? <p className="subtle">Todavía no hay canciones fijas.</p> : <div className="empty"><Heart size={29} /><h2>{genre ? 'Todavía no hay canciones en ' + genre.name : 'Tus favoritos empiezan aquí'}</h2><p className="subtle">Toca el corazón junto a una canción para guardarla aquí.</p></div>}
+          {tracks.length ? <TrackTable tracks={tracks} playingId={playing ? active?.id : undefined} onPlay={playTrack} isSaved={isSavedHere} onSave={track => toggleSaved(track, genre?.id)} collection={genre?.name} />
+            : isFixed ? <p className="subtle">Todavía no hay canciones fijas.</p> : <div className="empty"><Heart size={29} /><h2>{genre ? 'Todavía no hay canciones en ' + genre.name : 'Tus favoritos empiezan aquí'}</h2><p className="subtle">Toca el corazón junto a una canción para guardarla aquí.</p></div>}
         </section>
       </>}
       </div>
@@ -516,17 +773,19 @@ export default function Home() {
           <div className="artwork-cover-area">
             <Cover key={active.id} track={active} className="artwork-large" />
             <div className="artwork-tools">
+              <button type="button" className="icon artwork-tool" aria-label="Favorito de la canción" title={activeIsFavorite ? 'Quitar de Favoritos' : 'Guardar en Favoritos'} aria-pressed={activeIsFavorite} onClick={() => toggleSaved(active)}><Heart size={20} fill={activeIsFavorite ? 'currentColor' : 'none'} /></button>
               <button className="icon artwork-tool" aria-label="Mostrar letra" title="Letra" aria-pressed={artworkLyricsOpen && !analysisOpen} onClick={() => { setArtworkLyricsOpen(analysisOpen || !artworkLyricsOpen); setAnalysisOpen(false); }}><Mic2 size={20} /></button>
               <button className="icon artwork-tool" aria-label="Significado con Groq" title="Significado con Groq" aria-pressed={analysisOpen} onClick={() => setAnalysisOpen(!analysisOpen)}><Sparkles size={20} /></button>
             </div>
           </div>
-          <div className="artwork-meta"><h2>{active.title}</h2><p>{active.artist}</p>
+          <div className="artwork-meta"><h2>{active.title}</h2><button className="artwork-artist-link" onClick={() => openArtist({ name: active.artist })}>{active.artist}</button>
             {promo && active.link && <a className="promo" href={active.link} target="_blank" rel="noreferrer">Fragmento cortesía de {previewProvider} <ExternalLink size={12} /></a>}
           </div>
           <PlaybackProgress time={time} duration={duration} onSeek={seekPlayback} />
           <div className="transport artwork-transport">{transport}</div>
           {message && <p className="artwork-status" role="status">{message}</p>}
         </div>
+        {!artworkLyricsOpen && !analysisOpen && <ArtistCredits key={active.id} track={active} onArtist={openArtist} />}
         {analysisOpen ? <SongAnalysis key={active.id} track={active} cache={analysisCache.current} onClose={() => setAnalysisOpen(false)} expanded />
           : artworkLyricsOpen && <Lyrics key={active.id} track={active} time={time} synchronized={!promo} expanded />}
       </div>
