@@ -2,7 +2,7 @@
 
 import '@fontsource-variable/dm-sans';
 import { useEffect, useRef, useState } from 'react';
-import { AudioLines, Clock3, Compass, Heart, House, ListMusic, Maximize2, Mic2, Music2, Pause, Play, Plus, Repeat, Search, Shuffle, SkipBack, SkipForward, Sparkles, Volume2, VolumeX, X, ExternalLink } from 'lucide-react';
+import { AudioLines, Clock3, Compass, Heart, House, ListMusic, Maximize2, Mic2, Music2, Pause, Play, Plus, RefreshCw, Repeat, Search, Shuffle, SkipBack, SkipForward, Sparkles, Volume2, VolumeX, X, ExternalLink } from 'lucide-react';
 import { Howl } from 'howler';
 import { localFiles } from './storage';
 import fixedTracks from './mis-fijas.json';
@@ -12,6 +12,8 @@ import { chartSource } from './chart-source';
 import { catalogTrackId, shareableTrackId, songParam } from './track-link';
 
 const genresView = 'Explorar géneros';
+const recentArtistsKey = 'jcn-recent-artists-v1';
+const recentArtistsLimit = 10;
 const nav = [[House, 'Inicio'], [Compass, genresView], [Heart, 'Favoritos'], [ListMusic, 'Mis fijas']];
 const colors = ['#613339','#384a45','#49405e','#74494f','#665466','#39485e'];
 const formatTime = seconds => seconds > 0 ? Math.floor(seconds / 60) + ':' + String(Math.floor(seconds % 60)).padStart(2, '0') : '0:00';
@@ -20,6 +22,7 @@ const sameTrack = (left, right) => left && right &&
 const fromRemovedCatalog = track => track?.id?.startsWith('jamendo-');
 const isDeezerTrack = track => track?.id?.startsWith('deezer-');
 const isPreviewTrack = track => !track?.local && Boolean(track?.preview || (track?.preview !== null && isDeezerTrack(track)));
+const canPlayTrack = track => track.local || isPreviewTrack(track);
 
 function replaceSongInAddress(id) {
   const url = new URL(window.location.href);
@@ -57,7 +60,7 @@ function ArtistAvatar({ artist }) {
   </span>;
 }
 
-function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose, onArtist, searchMemory }) {
+function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose, onArtist, onRememberArtist, searchMemory }) {
   const scope = genre || '';
   const previous = searchMemory.get(scope);
   const [query, setQuery] = useState(previous?.query || '');
@@ -92,6 +95,7 @@ function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose, onArti
     const people = profiles.status === 'fulfilled' ? profiles.value : [];
     setResults(matches);
     setArtists(people);
+    if (people[0]) onRememberArtist(people[0]);
     searchMemory.set(scope, { query, source, results: matches, artists: people });
     setStatus(matches.length || people.length ? '' : songs.status === 'rejected'
       ? 'La búsqueda falló. Intenta de nuevo.' : 'No encontré resultados para esa búsqueda.');
@@ -109,7 +113,7 @@ function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose, onArti
     </form>
     {status && <p className="subtle" role="status">{status}</p>}
     {artists.length > 0 && <section className="artist-results" aria-label="Artistas">
-      {artists.map(artist => <button key={artist.id} className="artist-result" onClick={() => onArtist(artist)}>
+      {artists.map(artist => <button key={artist.id} className="artist-result" onClick={() => { onRememberArtist(artist); onArtist(artist); }}>
         <ArtistAvatar artist={artist} />
         <span className="track-copy"><strong>{artist.name}</strong><small>Artista</small></span>
       </button>)}
@@ -207,7 +211,7 @@ function SongAnalysis({ track, cache, onClose, expanded = false }) {
       if (response.ok) cache.set(cacheKey, data);
       setResult(data);
     }).catch(() => {
-      if (!controller.signal.aborted) setResult({ error: 'No se pudo consultar Groq.' });
+      if (!controller.signal.aborted) setResult({ error: 'No se pudo consultar Vibra.' });
     });
     return () => controller.abort();
   }, [track, cache, cacheKey, retry]);
@@ -218,7 +222,7 @@ function SongAnalysis({ track, cache, onClose, expanded = false }) {
       <button className="icon" onClick={onClose} aria-label="Cerrar análisis"><X size={19} /></button>
     </div>
     <div className="analysis-scroll" tabIndex={0}>
-      {!result ? <p role="status">Groq está interpretando la canción…</p> : result.error ?
+      {!result ? <p role="status">Vibra está interpretando la canción…</p> : result.error ?
         <><p role="status">{result.error}</p><button className="secondary" onClick={() => { setResult(undefined); setRetry(retry + 1); }}>Reintentar</button></> :
         <>
           <p className="analysis-lead">{result.resumen}</p>
@@ -293,14 +297,25 @@ function ArtistCredits({ track, onArtist }) {
   </aside>;
 }
 
+function PlayCollection({ tracks, playingId, onPlay }) {
+  const queue = tracks.filter(canPlayTrack);
+  const first = queue[0];
+  if (!first) return null;
+  const isPlaying = playingId === first.id;
+  return <button type="button" className="primary" onClick={() => onPlay(first, queue)}>
+    {isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}
+    {isPlaying ? 'Pausar' : 'Reproducir'}
+  </button>;
+}
+
 function TrackTable({ tracks, playingId, onPlay, isSaved, onSave, collection = 'Favoritos' }) {
-  const playable = tracks.filter(track => track.local || isPreviewTrack(track));
+  const playable = tracks.filter(canPlayTrack);
   return <div className="track-table">
     <div className="track-row track-header"><span>#</span><span>CANCIÓN</span><span>ÁLBUM</span><span><Clock3 size={15} aria-label="Duración" /></span><span /></div>
     {tracks.map((track, index) => {
       const isPlaying = playingId === track.id;
       const playbackLabel = (isPlaying ? 'Pausar ' : 'Reproducir ') + track.title;
-      const available = track.local || isPreviewTrack(track);
+      const available = canPlayTrack(track);
       const saved = isSaved(track);
       const details = <><Cover track={track} index={index} /><span className="track-copy"><strong>{track.title}</strong><small>{track.artist || 'Apple Music'}</small></span></>;
       return <div className={'track-row' + (isPlaying ? ' row-playing' : '')} key={track.id}>
@@ -313,6 +328,61 @@ function TrackTable({ tracks, playingId, onPlay, isSaved, onSave, collection = '
       </div>;
     })}
   </div>;
+}
+
+function GenreRecommendations({ genre, savedTracks, cache, playingId, onPlay, favorite, onSave }) {
+  const [selection, setSelection] = useState(() => cache.get(genre.id));
+  const [request, setRequest] = useState(() => {
+    const recent = cache.get(genre.id);
+    return recent && Date.now() - recent.updatedAt < 30 * 60 * 1000 ? null : { saved: savedTracks, recent: [] };
+  });
+  const [loading, setLoading] = useState(Boolean(request));
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (!request) return;
+    const controller = new AbortController();
+    const saved = request.saved.map(({ id, title, artist }) => ({ id, title, artist }));
+    fetch('/api/recomendaciones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({ genre: genre.id, saved, recent: request.recent }),
+    }).then(async response => {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      if (controller.signal.aborted) return;
+      const next = { ...data, recent: request.recent, updatedAt: Date.now() };
+      cache.set(genre.id, next);
+      setSelection(next);
+    }).catch(reason => {
+      if (!controller.signal.aborted) setError(reason.message || 'Vibra no pudo cargar las recomendaciones.');
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    });
+    return () => controller.abort();
+  }, [request, cache, genre.id]);
+
+  function refresh() {
+    const recent = [...(selection?.tracks.map(track => track.id) || []), ...(selection?.recent || [])];
+    setLoading(true);
+    setError('');
+    setRequest({ saved: savedTracks, recent: [...new Set(recent)].slice(0, 15) });
+  }
+
+  return <section className="genre-recommendations" aria-labelledby="genre-recommendations-title" aria-busy={loading}>
+    <div className="genre-recommendations-heading">
+      <div>
+        <h2 id="genre-recommendations-title">Las mejores de {genre.name}</h2>
+        <p className="subtle">{selection?.source === 'deezer' ? 'Selección del catálogo de Deezer' : 'Recomendaciones de Vibra · Deezer'}</p>
+      </div>
+      <button type="button" className="icon recommendations-refresh" title="Renovar recomendaciones" aria-label="Renovar recomendaciones" disabled={loading} onClick={refresh}>
+        <RefreshCw size={19} aria-hidden="true" />
+      </button>
+    </div>
+    {error && <p className="subtle" role="status">{error}</p>}
+    {selection ? <TrackTable tracks={selection.tracks} playingId={playingId} onPlay={onPlay} isSaved={favorite} onSave={onSave} collection={genre.name} />
+      : loading && <p className="subtle" role="status">Vibra está buscando canciones para ti…</p>}
+  </section>;
 }
 
 function Discography({ kind, id, onBack, onAlbum, onArtist, onPlay, playingId, favorite, onSave }) {
@@ -348,6 +418,9 @@ function Discography({ kind, id, onBack, onAlbum, onArtist, onPlay, playingId, f
           {album && <div className="discography-meta">
             <button onClick={() => onArtist(artist)}>{artist.name}</button>
             {/^[1-9]\d{3}/.test(album.released) && <span>{album.released.slice(0, 4)}</span>}
+          </div>}
+          {data.tracks.some(canPlayTrack) && <div className="discography-actions">
+            <PlayCollection tracks={data.tracks} playingId={playingId} onPlay={onPlay} />
           </div>}
         </div>
       </header>
@@ -408,6 +481,8 @@ function WorldChart({ onPlay, playingId, favorite, onSave }) {
 
 export default function Home() {
   const [favorites, setFavorites] = useState([]);
+  const [recentArtists, setRecentArtists] = useState([]);
+  const recentArtistHistory = useRef([]);
   const [genreOverrides, setGenreOverrides] = useState({});
   const [view, setView] = useState('Inicio');
   const [genreSearch, setGenreSearch] = useState(false);
@@ -434,11 +509,29 @@ export default function Home() {
   const artworkClose = useRef(null);
   const coverButton = useRef(null);
   const analysisCache = useRef(new Map());
+  const recommendationCache = useRef(new Map());
   const catalogSearches = useRef(new Map());
   const genreTracks = { ...genreDefaults, ...genreOverrides };
   const searchOrigin = useRef({ view: 'Inicio', genreSearch: false });
   const searchButton = useRef(null);
   const genreSearchButton = useRef(null);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(recentArtistsKey));
+      if (!Array.isArray(stored)) return;
+      const artists = stored.filter(artist => typeof artist?.id === 'string' && typeof artist?.name === 'string' && artist.name.trim());
+      recentArtistHistory.current = artists.slice(0, recentArtistsLimit);
+      setRecentArtists(recentArtistHistory.current);
+    } catch {}
+  }, []);
+
+  function rememberArtist(artist) {
+    const next = [artist, ...recentArtistHistory.current.filter(item => item.id !== artist.id)].slice(0, recentArtistsLimit);
+    recentArtistHistory.current = next;
+    setRecentArtists(next);
+    try { localStorage.setItem(recentArtistsKey, JSON.stringify(next)); } catch {}
+  }
 
   useEffect(() => {
     if (artworkOpen) artworkClose.current?.focus();
@@ -570,10 +663,13 @@ export default function Home() {
   const activeIsFavorite = isFavorite(active);
   function toggleSaved(track, genreId) {
     const list = genreId ? genreTracks[genreId] || [] : favorites;
-    const next = list.some(item => sameTrack(item, track))
+    const wasSaved = list.some(item => sameTrack(item, track));
+    const next = wasSaved
       ? list.filter(item => !sameTrack(item, track))
       : [...list, track];
-    const nextFavorites = genreId ? favorites : next;
+    let nextFavorites = favorites;
+    if (!genreId) nextFavorites = next;
+    else if (!wasSaved && !isFavorite(track)) nextFavorites = [...favorites, track];
     const nextGenres = genreId ? { ...genreOverrides, [genreId]: next } : genreOverrides;
     try {
       localStorage.setItem('jcn-library-v1', JSON.stringify({
@@ -588,13 +684,13 @@ export default function Home() {
 
   async function playTrack(track, list = favorites, restart = false) {
     if (!track) return;
+    queue.current = list.some(item => item.id === track.id) ? list : [track];
     if (!restart && active?.id === track.id && player.current) {
       if (player.current.playing()) player.current.pause();
       else player.current.play();
       return;
     }
     const version = ++sequence.current;
-    queue.current = list.some(item => item.id === track.id) ? list : [track];
     player.current?.unload();
     player.current = null;
     if (audioUrl.current) URL.revokeObjectURL(audioUrl.current);
@@ -681,8 +777,6 @@ export default function Home() {
   const tracks = genre ? genreTracks[genre.id] || [] : isFixed ? fixedTracks : favorites;
   const viewTitle = genre?.name || view;
   const isSavedHere = genre ? track => tracks.some(item => sameTrack(item, track)) : isFavorite;
-  const firstTrack = tracks[0];
-  const firstIsPlaying = playing && active?.id === firstTrack?.id;
   const previewProvider = isDeezerTrack(active) ? 'Deezer' : 'iTunes';
   const togglePlayback = () => playTrack(active, queue.current.length ? queue.current : favorites);
   const playbackLabel = playing ? 'Pausar' : 'Reproducir';
@@ -715,7 +809,18 @@ export default function Home() {
       <header className="library-top"><button ref={searchButton} className="icon library-search" aria-label="Buscar música" title="Buscar música" aria-current={view === 'Buscar' ? 'page' : undefined} onClick={openSearch}><Search size={21} aria-hidden="true" /></button></header>
       <div className="view-content" key={view}>
       {discography ? <Discography kind={discography[1]} id={decodeURIComponent(discography[2])} onBack={() => window.history.back()} onAlbum={id => navigate('album:' + id)} onArtist={openArtist} onPlay={playTrack} playingId={playing ? active?.id : undefined} favorite={isFavorite} onSave={toggleSaved} />
-        : view === 'Inicio' ? <WorldChart onPlay={playTrack} playingId={playing ? active?.id : undefined} favorite={isFavorite} onSave={toggleSaved} />
+        : view === 'Inicio' ? <>
+          {recentArtists.length > 0 && <section className="recent-artists" aria-labelledby="recent-artists-title">
+            <h2 id="recent-artists-title">Volver a escuchar</h2>
+            <div className="recent-artists-list">
+              {recentArtists.map(artist => <button key={artist.id} type="button" className="recent-artist" onClick={() => openArtist(artist)} title={artist.name}>
+                <ArtistAvatar artist={artist} />
+                <span>{artist.name}</span>
+              </button>)}
+            </div>
+          </section>}
+          <WorldChart onPlay={playTrack} playingId={playing ? active?.id : undefined} favorite={isFavorite} onSave={toggleSaved} />
+        </>
         : view === genresView ? <section aria-labelledby="genres-title">
         <h1 id="genres-title">{genresView}</h1>
         <div className="genre-grid">{genres.map((item, index) => <button className="genre-card" key={item.id} onClick={() => navigate(item.id)} style={{ '--cover-delay': -(index % 5) * 1.9 + 's', '--entrance-delay': Math.min(index, 8) * 24 + 'ms' }}>
@@ -725,7 +830,7 @@ export default function Home() {
       </section> : view === 'Buscar' ? <section className="content-section">
         <h1>Buscar música</h1>
         <p className="subtle catalog-scope">Los corazones de estos resultados guardan en Favoritos.</p>
-        <Catalog onChoose={toggleSaved} favorite={isFavorite} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeSearch} onArtist={openArtist} searchMemory={catalogSearches.current} />
+        <Catalog onChoose={toggleSaved} favorite={isFavorite} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeSearch} onArtist={openArtist} onRememberArtist={rememberArtist} searchMemory={catalogSearches.current} />
       </section> : <>
         <section className={'hero' + (genre ? ' genre-hero' : '')}>
           {genre && <div className="genre-hero-cover" aria-hidden="true"><img key={genre.id} src={genre.art} alt="" /></div>}
@@ -733,20 +838,20 @@ export default function Home() {
             <h1>{viewTitle}<span>.</span></h1>
             <p>{tracks.length} {tracks.length === 1 ? 'canción' : 'canciones'}</p>
             <div className="hero-actions">
-              {firstTrack && <button className="primary" onClick={() => playTrack(firstTrack, tracks)}>{firstIsPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />} {firstIsPlaying ? 'Pausar' : 'Reproducir'}</button>}
-              {genre ? <button ref={genreSearchButton} className={firstTrack ? 'secondary' : 'primary'} aria-expanded={genreSearch} aria-controls="genre-search" onClick={() => genreSearch ? closeGenreSearch() : setGenreSearch(true)}><Plus size={18} /> Buscar canciones</button>
-                : <button className={firstTrack ? 'secondary' : 'primary'} onClick={openSearch}><Search size={17} /> Buscar música</button>}
+              <PlayCollection tracks={tracks} playingId={playing ? active?.id : undefined} onPlay={playTrack} />
+              {genre && <button ref={genreSearchButton} className={tracks.some(canPlayTrack) ? 'secondary' : 'primary'} aria-expanded={genreSearch} aria-controls="genre-search" onClick={() => genreSearch ? closeGenreSearch() : setGenreSearch(true)}><Plus size={18} /> Buscar canciones</button>}
             </div>
           </div>
         </section>
         {genre && genreSearch && <section className="content-section" id="genre-search" aria-label={'Buscar canciones para ' + genre.name}>
-          <p className="subtle catalog-scope">Guarda con el corazón las canciones que quieras en {genre.name}.</p>
-          <Catalog key={genre.id} genre={genre.name} onChoose={track => toggleSaved(track, genre.id)} favorite={isSavedHere} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeGenreSearch} onArtist={openArtist} searchMemory={catalogSearches.current} />
+          <p className="subtle catalog-scope">El corazón guarda la canción en {genre.name} y también en Favoritos.</p>
+          <Catalog key={genre.id} genre={genre.name} onChoose={track => toggleSaved(track, genre.id)} favorite={isSavedHere} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeGenreSearch} onArtist={openArtist} onRememberArtist={rememberArtist} searchMemory={catalogSearches.current} />
         </section>}
         <section className="playlist" aria-label={viewTitle}>
           {tracks.length ? <TrackTable tracks={tracks} playingId={playing ? active?.id : undefined} onPlay={playTrack} isSaved={isSavedHere} onSave={track => toggleSaved(track, genre?.id)} collection={genre?.name} />
             : isFixed ? <p className="subtle">Todavía no hay canciones fijas.</p> : <div className="empty"><Heart size={29} /><h2>{genre ? 'Todavía no hay canciones en ' + genre.name : 'Tus favoritos empiezan aquí'}</h2><p className="subtle">Toca el corazón junto a una canción para guardarla aquí.</p></div>}
         </section>
+        {genre && <GenreRecommendations key={genre.id} genre={genre} savedTracks={tracks} cache={recommendationCache.current} playingId={playing ? active?.id : undefined} onPlay={playTrack} favorite={isSavedHere} onSave={track => toggleSaved(track, genre.id)} />}
       </>}
       </div>
     </main>
@@ -760,7 +865,7 @@ export default function Home() {
         {promo && active.link && <a className="promo" href={active.link} target="_blank" rel="noreferrer" title={'Fragmento cortesía de ' + previewProvider}>{previewProvider} · fragmento <ExternalLink size={10} /></a>}</div>
         {active && <button className={'icon now-heart ' + (isSavedHere(active) ? 'accent' : '')} aria-label={genre ? 'Guardar o quitar de ' + genre.name : 'Cambiar favorito'} aria-pressed={isSavedHere(active)} onClick={() => toggleSaved(active, genre?.id)}><Heart size={18} fill={isSavedHere(active) ? 'currentColor' : 'none'} /></button>}</div>
       <div className="player-center"><div className="transport">{transport}</div><PlaybackProgress time={time} duration={duration} onSeek={seekPlayback} /></div>
-      <div className="extras"><button className={'icon ' + (lyricsOpen && !analysisOpen ? 'accent' : '')} aria-label="Mostrar letra" title="Letra" aria-pressed={lyricsOpen && !analysisOpen} disabled={!active} onClick={() => { setLyricsOpen(analysisOpen || !lyricsOpen); setAnalysisOpen(false); }}><Mic2 size={18} /></button><button className={'icon ' + (analysisOpen ? 'accent' : '')} aria-label="Significado con Groq" title="Significado con Groq" aria-pressed={analysisOpen} disabled={!active} onClick={() => setAnalysisOpen(!analysisOpen)}><Sparkles size={18} /></button><button className="icon volume-icon" aria-label={volume ? 'Silenciar' : 'Activar sonido'} onClick={() => changeVolume(volume ? 0 : 0.72)}>{volume ? <Volume2 size={19} /> : <VolumeX size={19} />}</button><input className="volume-slider" type="range" min="0" max="1" step="0.01" value={volume} aria-label="Volumen" style={{'--fill': volume * 100 + '%'}} onChange={event => changeVolume(Number(event.target.value))} /></div>
+      <div className="extras"><button className={'icon ' + (lyricsOpen && !analysisOpen ? 'accent' : '')} aria-label="Mostrar letra" title="Letra" aria-pressed={lyricsOpen && !analysisOpen} disabled={!active} onClick={() => { setLyricsOpen(analysisOpen || !lyricsOpen); setAnalysisOpen(false); }}><Mic2 size={18} /></button><button className={'icon ' + (analysisOpen ? 'accent' : '')} aria-label="Significado con Vibra" title="Significado con Vibra" aria-pressed={analysisOpen} disabled={!active} onClick={() => setAnalysisOpen(!analysisOpen)}><Sparkles size={18} /></button><button className="icon volume-icon" aria-label={volume ? 'Silenciar' : 'Activar sonido'} onClick={() => changeVolume(volume ? 0 : 0.72)}>{volume ? <Volume2 size={19} /> : <VolumeX size={19} />}</button><input className="volume-slider" type="range" min="0" max="1" step="0.01" value={volume} aria-label="Volumen" style={{'--fill': volume * 100 + '%'}} onChange={event => changeVolume(Number(event.target.value))} /></div>
     </footer>
     </div>
     {artworkOpen && active && <section className="artwork-stage" aria-label="Reproductor a pantalla completa" onKeyDown={event => {
@@ -775,7 +880,7 @@ export default function Home() {
             <div className="artwork-tools">
               <button type="button" className="icon artwork-tool" aria-label="Favorito de la canción" title={activeIsFavorite ? 'Quitar de Favoritos' : 'Guardar en Favoritos'} aria-pressed={activeIsFavorite} onClick={() => toggleSaved(active)}><Heart size={20} fill={activeIsFavorite ? 'currentColor' : 'none'} /></button>
               <button className="icon artwork-tool" aria-label="Mostrar letra" title="Letra" aria-pressed={artworkLyricsOpen && !analysisOpen} onClick={() => { setArtworkLyricsOpen(analysisOpen || !artworkLyricsOpen); setAnalysisOpen(false); }}><Mic2 size={20} /></button>
-              <button className="icon artwork-tool" aria-label="Significado con Groq" title="Significado con Groq" aria-pressed={analysisOpen} onClick={() => setAnalysisOpen(!analysisOpen)}><Sparkles size={20} /></button>
+              <button className="icon artwork-tool" aria-label="Significado con Vibra" title="Significado con Vibra" aria-pressed={analysisOpen} onClick={() => setAnalysisOpen(!analysisOpen)}><Sparkles size={20} /></button>
             </div>
           </div>
           <div className="artwork-meta"><h2>{active.title}</h2><button className="artwork-artist-link" onClick={() => openArtist({ name: active.artist })}>{active.artist}</button>

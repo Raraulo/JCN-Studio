@@ -52,6 +52,14 @@ small { font-size: .84rem }
 .chart-source a:hover { text-decoration: underline }
 .chart-loading, .world-chart > .empty { margin-top: 24px }
 .chart-rank { width: 25px; text-align: center; color: var(--muted); font-size: .86rem }
+.recent-artists { margin-bottom: clamp(22px, 3vw, 40px) }
+.recent-artists h2 { font-size: clamp(1.45rem, 2.6vw, 2rem) }
+.recent-artists-list { display: flex; gap: clamp(14px, 2vw, 24px); overflow-x: auto; overscroll-behavior-inline: contain; padding: 12px 5px 8px; scrollbar-width: thin }
+.recent-artist { display: grid; justify-items: center; align-content: start; gap: 8px; flex: 0 0 clamp(76px, 9vw, 116px); min-width: 0; text-align: center }
+.recent-artist .artist-avatar { width: 100%; height: auto; aspect-ratio: 1; transition: transform .18s var(--ease-out) }
+.recent-artist > span:last-child { max-width: 100%; font-size: .85rem; font-weight: 650; overflow-wrap: anywhere }
+.recent-artist:hover { color: #ffb1bf }
+.recent-artist:hover .artist-avatar { transform: scale(1.05) }
 .genre-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: clamp(12px,2vw,24px); margin-top: 23px }
 .genre-card { position: relative; display: grid; min-width: 0; aspect-ratio: 1; overflow: hidden; isolation: isolate; border: 1px solid #ffffff20; border-radius: 15px; text-align: left; background: var(--panel); box-shadow: 0 8px 24px #0003; transition: translate .23s var(--ease-out), border-color .2s, box-shadow .23s; animation: content-in .32s var(--ease-out) var(--entrance-delay, 0ms) both }
 .genre-card:hover { translate: 0 -4px; border-color: #ff91a780; box-shadow: 0 12px 32px #0007 }
@@ -96,6 +104,13 @@ small { font-size: .84rem }
 .hero p { color: #dfcfd4; font-size: 1rem }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 23px }
 .playlist { margin-top: 25px }
+.genre-recommendations { margin-top: clamp(34px, 5vw, 62px) }
+.genre-recommendations-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px }
+.genre-recommendations-heading .subtle { margin-top: 5px }
+.genre-recommendations-heading .recommendations-refresh { width: 42px; height: 42px; border: 1px solid var(--line); background: #ffffff08 }
+.recommendations-refresh:hover { background: #ffffff15 }
+.recommendations-refresh:disabled svg { animation: refresh-turn .8s linear infinite }
+@keyframes refresh-turn { to { transform: rotate(360deg) } }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px }
 .cover { position: relative; display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; overflow: hidden; border-radius: 6px; background: radial-gradient(at 25% 25%, var(--cover), #17161c); color: #ffffffaa }
 .cover svg { width: 38%; height: 38% }
@@ -170,6 +185,7 @@ select { background: #1c1c20; border: 1px solid #36353b; padding: 8px 10px; bord
 .discography-hero .artist-avatar, .discography-hero .discography-cover { width: clamp(76px, 15vw, 192px); height: auto; aspect-ratio: 1; flex: none }
 .discography-hero .discography-cover { border-radius: 14px }
 .discography-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: .95rem }
+.discography-actions { margin-top: 13px }
 .discography-meta button:hover, .artwork-artist-link:hover { color: #ffb1bf; text-decoration: underline }
 .discography h2 { margin-bottom: 12px }
 .discography-albums { margin-top: 34px }
@@ -269,6 +285,9 @@ body:has(.artwork-stage) { overflow: hidden }
   .artwork-credits .artist-list { gap: 10px }
 }
 @media (prefers-reduced-motion: reduce) {
+  .recommendations-refresh:disabled svg { animation: none }
+  .recent-artist .artist-avatar { transition: none }
+  .recent-artist:hover .artist-avatar { transform: none }
   .artwork-backdrop .cover, .artwork-backdrop .cover:nth-child(2) { animation: none }
   .hero:not(.genre-hero)::before { animation: none }
   .artwork-backdrop .cover:nth-child(2) { opacity: .3 }
