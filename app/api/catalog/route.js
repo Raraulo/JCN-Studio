@@ -11,7 +11,7 @@ export async function GET(request) {
   }
   if (artistQuery) {
     try {
-      return Response.json((await findDeezerArtists(artistQuery)).slice(0, 1));
+      return Response.json((await findDeezerArtists(artistQuery, { preferExact: true })).slice(0, 1));
     } catch {
       return Response.json([]);
     }

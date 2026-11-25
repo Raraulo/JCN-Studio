@@ -35,7 +35,7 @@ small { font-size: .84rem }
 .sidebar nav button { width: 100%; margin-bottom: 5px; text-align: left; font-weight: 600; transition: background .18s, color .18s }
 .sidebar nav button:hover { background: #212124; color: white }
 .sidebar nav .selected { background: linear-gradient(90deg,#f0446528,#f0446512); color: #ff8798 }
-.main { margin-left: var(--sidebar); padding: 24px clamp(25px,3.2vw,54px) calc(var(--player) + 40px); max-width: 1660px }
+.main { --main-gutter: clamp(25px,3.2vw,54px); margin-left: var(--sidebar); padding: 24px var(--main-gutter) calc(var(--player) + 40px); max-width: 1660px }
 .input-shell { display: flex; align-items: center; gap: 10px; color: var(--muted); background: #19191d; border: 1px solid #29292d; border-radius: 8px; padding: 9px 13px; font-size: .9rem }
 .library-top { display: flex; margin-bottom: 20px }
 .library-top .library-search { width: 42px; height: 42px }
@@ -76,7 +76,7 @@ small { font-size: .84rem }
 .secondary:hover { background: #39343a }
 .primary:active, .secondary:active, .main-play:active, .icon:active { transform: scale(.95) }
 .hero { position: relative; min-height: 285px; display: flex; align-items: center }
-.hero:not(.genre-hero)::before, .genre-hero-cover {
+.genre-hero-cover {
   position: absolute;
   inset: 0 0 0 auto;
   width: min(78%, 800px);
@@ -85,16 +85,41 @@ small { font-size: .84rem }
   mask-image: linear-gradient(90deg, transparent, #000 45%, #000 86%, transparent), linear-gradient(transparent, #000 20%, #000 75%, transparent);
   mask-composite: intersect;
 }
-.hero:not(.genre-hero)::before { content: ''; background: url('/hero.webp') right center / cover }
-.hero:not(.genre-hero)::before { top: -30mm; height: calc(100% + 30mm); background-position: right top }
-.hero:not(.genre-hero)::before {
-  transform-origin: 72% 50%;
-  animation: hero-soft-zoom 16s ease-in-out infinite alternate;
+.hero-vinyl {
+  --vinyl-lift: clamp(38px, 5vw, 76px);
+  position: absolute;
+  inset: calc(0px - var(--vinyl-lift)) calc(0px - var(--main-gutter)) var(--vinyl-lift) auto;
+  width: min(58%, 440px);
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #000 24%);
 }
-@keyframes hero-soft-zoom {
-  from { transform: scale(1) }
-  to { transform: scale(1.045) }
+.vinyl-record {
+  position: absolute;
+  inset: -15% 0 auto auto;
+  display: grid;
+  place-items: center;
+  height: 110%;
+  aspect-ratio: 1;
+  translate: 26% 0;
+  border-radius: 50%;
+  border: 1px solid #ffffff26;
+  background:
+    conic-gradient(from 12deg, transparent, #bbb2c222 62deg, transparent 94deg, #e19bae28 221deg, transparent 270deg),
+    repeating-radial-gradient(circle, #141318 0 2px, #28262d 2px 3px, #111015 3px 5px);
+  box-shadow: inset 0 0 16px #ffffff14, 0 14px 45px #0008;
+  animation: vinyl-spin 17s linear infinite;
 }
+.vinyl-label {
+  width: 32%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #141117 0 5%, #ffabc0 5% 7%, transparent 7% 62%, #ffc9d554 62% 64%, transparent 64%),
+    conic-gradient(from 50deg, #fa455b 0 48%, #b02448 48% 76%, #e23858 76%);
+  box-shadow: 0 0 0 4px #111015;
+}
+@keyframes vinyl-spin { to { transform: rotate(360deg) } }
 .genre-hero-cover { top: -30mm; height: calc(100% + 30mm); }
 .genre-hero-cover img { width: 100%; height: 100%; object-fit: cover; object-position: center top }
 .genre-hero-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #101012a8, transparent 74%) }
@@ -289,7 +314,7 @@ body:has(.artwork-stage) { overflow: hidden }
   .recent-artist .artist-avatar { transition: none }
   .recent-artist:hover .artist-avatar { transform: none }
   .artwork-backdrop .cover, .artwork-backdrop .cover:nth-child(2) { animation: none }
-  .hero:not(.genre-hero)::before { animation: none }
+  .vinyl-record { animation: none }
   .artwork-backdrop .cover:nth-child(2) { opacity: .3 }
   .cover-expand { transition: none }
   .genre-cover img, .genre-hero-cover img, .artwork-large img, .artist-result .artist-avatar img, .album-art img { animation: none }
@@ -310,10 +335,11 @@ body:has(.artwork-stage) { overflow: hidden }
 @media (max-width: 1000px) {
   .genre-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) }
   :root { --sidebar: 185px }
-  .main { padding-inline: 23px }
+  .main { --main-gutter: 23px }
   .hero { min-height: 245px }
 }
 @media (max-width: 740px) {
+  .hero-vinyl { opacity: .66 }
   .genre-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
   :root { --sidebar: 58px; --player: 105px }
   .sidebar { padding: 15px 7px }
@@ -321,7 +347,7 @@ body:has(.artwork-stage) { overflow: hidden }
   .brand > span:nth-child(2), .sidebar nav button span { display: none }
   .sidebar nav { margin-top: 24px }
   .sidebar nav button { justify-content: center; min-height: 44px; padding-inline: 0 }
-  .main { padding: 14px 14px calc(var(--player) + 20px) }
+  .main { --main-gutter: 14px; padding: 14px var(--main-gutter) calc(var(--player) + 20px) }
   .hero-content { padding: 24px 19px }
   .hero { min-height: 225px }
   .hero h1 { font-size: clamp(2.45rem, 8vw, 4rem) }

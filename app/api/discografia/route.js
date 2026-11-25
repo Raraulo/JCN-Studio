@@ -34,7 +34,7 @@ export async function GET(request) {
       });
     }
     if (artist) {
-      const id = numericId.test(artist) ? artist : (await findDeezerArtists(artist))[0]?.id;
+      const id = numericId.test(artist) ? artist : (await findDeezerArtists(artist, { preferExact: true }))[0]?.id;
       if (!id) return Response.json({ error: 'No encontré el perfil de este artista.' }, { status: 404 });
       const [profile, top, discography] = await Promise.all([
         deezerJson('/artist/' + id),

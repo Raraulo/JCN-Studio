@@ -1,3 +1,5 @@
+import { normalizeSearch } from './search-matches';
+
 export async function deezerJson(path, params) {
   const url = new URL(path, 'https://api.deezer.com');
   if (params) url.search = new URLSearchParams(params);
@@ -24,16 +26,19 @@ export function deezerTrack(track, album = track.album, artists = []) {
   };
 }
 
-const normalizeName = value => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
-
-export async function findDeezerArtists(query) {
+export async function findDeezerArtists(query, { preferExact = false } = {}) {
   const { data = [] } = await deezerJson('/search/artist', { q: query, limit: '16' });
-  const name = normalizeName(query);
-  const matches = data.filter(artist => artist.id && artist.name && normalizeName(artist.name).includes(name));
-  matches.sort((a, b) => Number(normalizeName(b.name) === name) - Number(normalizeName(a.name) === name));
+  const name = normalizeSearch(query);
+  if (!name) return [];
+  const matches = data.filter(artist => artist.id && artist.name && normalizeSearch(artist.name).includes(name));
+  const score = artist => {
+    const match = normalizeSearch(artist.name);
+    return (match.startsWith(name) ? 12 : 0) + (match === name ? (preferExact ? 100 : 6) : 0) + Math.log10(1 + (artist.nb_fan || 0)) * 4;
+  };
+  matches.sort((a, b) => score(b) - score(a));
   const unique = new Map();
   for (const artist of matches) {
-    const key = normalizeName(artist.name);
+    const key = normalizeSearch(artist.name);
     if (!unique.has(key)) unique.set(key, deezerArtist(artist));
     if (unique.size === 2) break;
   }

@@ -10,11 +10,12 @@ import genres from './genres.json';
 import genreDefaults from './canciones-por-genero.json';
 import { chartSource } from './chart-source';
 import { catalogTrackId, shareableTrackId, songParam } from './track-link';
+import { normalizeSearch, sortSongMatches } from './search-matches';
 
 const genresView = 'Explorar géneros';
 const recentArtistsKey = 'jcn-recent-artists-v1';
 const recentArtistsLimit = 10;
-const nav = [[House, 'Inicio'], [Compass, genresView], [Heart, 'Favoritos'], [ListMusic, 'Mis fijas']];
+const nav = [[House, 'Inicio'], [Compass, genresView], [Heart, 'Favoritos'], [ListMusic, 'Guardados']];
 const colors = ['#613339','#384a45','#49405e','#74494f','#665466','#39485e'];
 const formatTime = seconds => seconds > 0 ? Math.floor(seconds / 60) + ':' + String(Math.floor(seconds % 60)).padStart(2, '0') : '0:00';
 const sameTrack = (left, right) => left && right &&
@@ -69,46 +70,75 @@ function Catalog({ onChoose, favorite, onPlay, playingId, genre, onClose, onArti
   const [artists, setArtists] = useState(previous?.artists || []);
   const [status, setStatus] = useState('');
   const searchRequest = useRef(null);
+  const searchTimer = useRef(null);
 
-  useEffect(() => () => searchRequest.current?.abort(), []);
+  useEffect(() => () => {
+    clearTimeout(searchTimer.current);
+    searchRequest.current?.abort();
+  }, []);
 
-  async function search(event) {
-    event.preventDefault();
-    if (!query.trim()) return;
+  function queueSearch(text, provider) {
+    clearTimeout(searchTimer.current);
+    searchRequest.current?.abort();
+    const term = text.trim();
+    if (normalizeSearch(term).length < 2) {
+      setResults([]);
+      setArtists([]);
+      setStatus('');
+      searchMemory.delete(scope);
+      return;
+    }
+    searchTimer.current = setTimeout(() => search(term, provider), 240);
+  }
+
+  async function search(text, provider, submitted = false) {
+    clearTimeout(searchTimer.current);
+    const term = text.trim();
+    const normalized = normalizeSearch(term);
+    if (normalized.length < 2) return;
     searchRequest.current?.abort();
     const controller = new AbortController();
     searchRequest.current = controller;
     setStatus('Buscando música…');
-    setResults([]);
-    setArtists([]);
     async function find(path, params) {
       const response = await fetch(path + '?' + new URLSearchParams(params), { signal: controller.signal });
       if (!response.ok) throw new Error('Search unavailable');
       return response.json();
     }
     const [songs, profiles] = await Promise.allSettled([
-      find('/api/catalog', { q: query, source }),
-      find('/api/discografia', { q: query }),
+      find('/api/catalog', { q: term, source: provider }).then(tracks => {
+        const matches = sortSongMatches(tracks.filter(track => track.preview), term);
+        if (!controller.signal.aborted) setResults(matches);
+        return matches;
+      }),
+      find('/api/discografia', { q: term }).then(people => {
+        if (!controller.signal.aborted) setArtists(people);
+        return people;
+      }),
     ]);
     if (controller.signal.aborted) return;
-    const matches = songs.status === 'fulfilled' ? songs.value.filter(track => track.preview) : [];
+    const matches = songs.status === 'fulfilled' ? songs.value : [];
     const people = profiles.status === 'fulfilled' ? profiles.value : [];
     setResults(matches);
     setArtists(people);
-    if (people[0]) onRememberArtist(people[0]);
-    searchMemory.set(scope, { query, source, results: matches, artists: people });
+    const knownArtist = people.find(artist => normalizeSearch(artist.name) === normalized);
+    if (knownArtist || (submitted && people[0])) onRememberArtist(knownArtist || people[0]);
+    searchMemory.set(scope, { query: term, source: provider, results: matches, artists: people });
     setStatus(matches.length || people.length ? '' : songs.status === 'rejected'
       ? 'La búsqueda falló. Intenta de nuevo.' : 'No encontré resultados para esa búsqueda.');
   }
 
   return <>
-    <form className="search-form" onSubmit={search}>
+    <form className="search-form" onSubmit={event => { event.preventDefault(); search(query, source, true); }}>
       <div className="input-shell">
         <Search size={17} aria-hidden="true" />
-        <input aria-label="Canción o artista" placeholder={genre ? 'Buscar para ' + genre : 'Canción o artista'} value={query} onChange={event => setQuery(event.target.value)} required autoFocus />
+        <input aria-label="Canción o artista" placeholder={genre ? 'Buscar para ' + genre : 'Canción o artista'} value={query} minLength={2} maxLength={150} onChange={event => {
+          setQuery(event.target.value);
+          if (!event.nativeEvent.isComposing) queueSearch(event.target.value, source);
+        }} onCompositionEnd={event => queueSearch(event.currentTarget.value, source)} required autoFocus />
         <button type="button" className="icon search-close" aria-label="Cerrar buscador" title="Cerrar buscador" onClick={() => { searchMemory.delete(scope); onClose(); }}><X size={18} aria-hidden="true" /></button>
       </div>
-      <select aria-label="Catálogo" value={source} onChange={event => { searchRequest.current?.abort(); searchMemory.delete(scope); setSource(event.target.value); setResults([]); setArtists([]); setStatus(''); }}><option value="deezer">Deezer</option><option value="apple">iTunes</option></select>
+      <select aria-label="Catálogo" value={source} onChange={event => { setSource(event.target.value); queueSearch(query, event.target.value); }}><option value="deezer">Deezer</option><option value="apple">iTunes</option></select>
       <button className="primary">Buscar</button>
     </form>
     {status && <p className="subtle" role="status">{status}</p>}
@@ -771,7 +801,7 @@ export default function Home() {
   }
 
   const promo = isPreviewTrack(active);
-  const isFixed = view === 'Mis fijas';
+  const isFixed = view === 'Guardados';
   const genre = genres.find(item => item.id === view);
   const discography = /^(artist|album):(.+)$/.exec(view);
   const tracks = genre ? genreTracks[genre.id] || [] : isFixed ? fixedTracks : favorites;
@@ -833,7 +863,8 @@ export default function Home() {
         <Catalog onChoose={toggleSaved} favorite={isFavorite} onPlay={playTrack} playingId={playing ? active?.id : undefined} onClose={closeSearch} onArtist={openArtist} onRememberArtist={rememberArtist} searchMemory={catalogSearches.current} />
       </section> : <>
         <section className={'hero' + (genre ? ' genre-hero' : '')}>
-          {genre && <div className="genre-hero-cover" aria-hidden="true"><img key={genre.id} src={genre.art} alt="" /></div>}
+          {genre ? <div className="genre-hero-cover" aria-hidden="true"><img key={genre.id} src={genre.art} alt="" /></div>
+            : <div className="hero-vinyl" aria-hidden="true"><span className="vinyl-record"><span className="vinyl-label" /></span></div>}
           <div className="hero-content">
             <h1>{viewTitle}<span>.</span></h1>
             <p>{tracks.length} {tracks.length === 1 ? 'canción' : 'canciones'}</p>
